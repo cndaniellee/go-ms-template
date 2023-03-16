@@ -1,9 +1,0 @@
-Name: user-api
-Host: 0.0.0.0
-Port: 9801
-
-#RPC
-UserRpcConf:
-  Endpoints:
-    - goms_app_user_rpc:9901
-  NonBlock: true

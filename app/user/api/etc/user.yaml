@@ -1,0 +1,13 @@
+Name: user-api
+Host: 0.0.0.0
+Port: 9801
+
+JwtAuth:
+  AccessSecret: q6dfy--fm3r=1ni4*acv!9bdv9yxbb@*83crkq1oa4urgio%&b
+  AccessExpire: 7200
+
+#RPC
+UserRpcConf:
+  Endpoints:
+    - goms_app_user_rpc:9901
+  NonBlock: true

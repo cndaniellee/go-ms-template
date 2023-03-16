@@ -1,0 +1,36 @@
+syntax = "v1"
+
+import "entity/user.api"
+
+info(
+	title: "用户中心"
+	desc: "User requests"
+	author: "CNDanielLee"
+	email: "contact@daniellee.cn"
+	version: "1.0.0"
+)
+
+@server(
+	prefix: user/v1
+	group: auth
+)
+service user {
+	@doc "注册"
+	@handler register
+	post /auth/register (AuthReq) returns (AuthResp)
+	
+	@doc "登录"
+	@handler login
+	post /auth/login (AuthReq) returns (AuthResp)
+}
+
+@server(
+	prefix: user/v1
+	group: user
+	jwt: JwtAuth
+)
+service user {
+	@doc "获取用户信息"
+	@handler current
+	get /user/current returns (CurrentResp)
+}
