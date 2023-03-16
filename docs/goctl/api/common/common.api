@@ -1,0 +1,18 @@
+syntax = "v1"
+
+info(
+    title: "通用模型"
+    desc: "Common entity"
+    author: "CNDanielLee"
+    email: "contact@daniellee.cn"
+    version: "1.0.0"
+)
+
+
+type Page {
+    Page int `json:"page"`
+    PageSize int `json:"pageSize"`
+    Total int64 `json:"total"`
+}
+
+

@@ -1,0 +1,46 @@
+version: '3'
+
+#API网关、热重载环境
+#docker compose -f docker-compose.yml up -d
+#所有绑定目录放在/bind/conf/*、/bind/data/*、/bind/logs/*内
+
+services:
+  #Nginx网关【mkdir -p /bind/conf/nginx /bind/logs/nginx】
+  nginx:
+    image: nginx:1.23.3
+    container_name: goms_nginx
+    ports:
+      - 6080:6080
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - /bind/conf/nginx:/etc/nginx/conf.d
+      - /bind/logs/nginx:/var/log/nginx
+    privileged: true
+    restart: always
+    networks:
+      - goms_net
+
+  #App热加载容器
+  app:
+    image: cosmtrek/air
+    container_name: goms_app
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - 10080:10080
+    working_dir: /app
+    volumes:
+      - .:/app
+    privileged: true
+    restart: always
+    networks:
+      - goms_net
+
+networks:
+  goms_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

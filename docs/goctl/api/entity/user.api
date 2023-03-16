@@ -1,0 +1,26 @@
+syntax = "v1"
+
+info(
+    title: "用户中心实体"
+    desc: "User entities"
+    author: "CNDanielLee"
+    email: "contact@daniellee.cn"
+    version: "1.0.0"
+)
+
+type (
+    AuthReq {
+        Username string `json:"username" validate:"required"`
+        Password string `json:"password" validate:"required"`
+    }
+
+    AuthResp {
+        Token string `json:"token"`
+    }
+)
+
+type (
+    CurrentResp {
+        Username string `json:"username"`
+    }
+)

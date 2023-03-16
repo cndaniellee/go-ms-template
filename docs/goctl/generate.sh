@@ -1,0 +1,1 @@
+goctl api go --api api/user.api --dir ../../app/user/api --home goctl/template --style go_zero
