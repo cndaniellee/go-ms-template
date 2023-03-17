@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"goms/app/user/rpc/userclient"
 
 	"goms/app/user/api/internal/svc"
 	"goms/app/user/api/internal/types"
@@ -26,9 +27,17 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error) {
-	// todo: add your logic here and delete this line
 
-	err = response.ErrResp(0, errcode.Login, "example")
+	rpcResp, rpcErr := l.svcCtx.UserRpc.AuthLogin(l.ctx, &userclient.AuthReq{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if rpcErr != nil {
+		l.Logger.Errorf("rpc call error: %v", rpcErr.Error())
+		err = response.ErrResp(0, errcode.Login, response.RpcCallError)
+		return
+	}
+	resp.Token = rpcResp.Token
 
 	return
 }

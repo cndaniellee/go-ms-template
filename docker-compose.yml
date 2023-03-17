@@ -41,6 +41,25 @@ services:
     networks:
       - goms_net
 
+  app-user-rpc:
+    image: cosmtrek/air:latest
+    container_name: goms_app_user_rpc
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 9901:9901
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c app/user/rpc/air.toml
+    networks:
+      - goms_net
+
 networks:
   goms_net:
     driver: bridge

@@ -6,7 +6,11 @@ package response
 
 var (
 	OK = "OK"
+
 	ServerError = "SERVER_ERROR"
+
 	InvalidParam = "INVALID_PARAM"
 	MissingParam = "MISSING_PARAM"
+
+	RpcCallError = "RPC_CALL_ERROR"
 )
