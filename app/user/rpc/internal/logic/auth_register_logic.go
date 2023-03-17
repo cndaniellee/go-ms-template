@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/hash"
-
 	"goms/app/user/rpc/internal/svc"
 	"goms/app/user/rpc/pb/user"
 
@@ -26,5 +24,5 @@ func NewAuthRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Auth
 
 func (l *AuthRegisterLogic) AuthRegister(in *user.AuthReq) (*user.AuthResp, error) {
 
-	return &user.AuthResp{Token: string(hash.Md5([]byte(in.Username)))}, nil
+	return &user.AuthResp{Token: "register_token"}, nil
 }

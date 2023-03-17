@@ -36,7 +36,8 @@ func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 		err = response.ErrResp(0, errcode.Current, response.RpcCallError)
 		return
 	}
-	resp.Username = rpcResp.Username
+
+	resp = &types.CurrentResp{Username: rpcResp.Username}
 
 	return
 }

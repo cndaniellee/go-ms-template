@@ -8,6 +8,23 @@ services:
 
 #基础组件
 
+  #Etcd注册中心【mkdir -p /bind/data/etcd】
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: goms_etcd
+    ports:
+      - 2379:2379
+      - 2380:2380
+    environment:
+      TZ: Asia/Shanghai
+      ALLOW_NONE_AUTHENTICATION: yes
+    privileged: true
+    restart: always
+    volumes:
+      - /bind/data/etcd:/bitnami/etcd"
+    networks:
+      - goms_net
+
   #Redis缓存【mkdir -p /bind/data/redis】
   redis:
     image: redis:7.0.9

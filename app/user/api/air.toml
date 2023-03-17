@@ -7,11 +7,11 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "go build -o ./tmp/main ./app/user/api/user.go"
+cmd = "go build -o ./tmp/user-api ./app/user/api/user.go"
 # Binary file yields from `cmd`.
-bin = "tmp/main"
+bin = "tmp/user-api"
 # Customize binary, can setup environment variables when run your app.
-full_bin = "APP_ENV=dev APP_USER=air ./tmp/main"
+full_bin = "APP_ENV=dev APP_USER=air ./tmp/user-api"
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html"]
 # Ignore these filename extensions or directories.
@@ -39,7 +39,7 @@ send_interrupt = false
 # Delay after sending Interrupt signal
 kill_delay = 500 # ms
 # Rerun binary or not
-rerun = false
+rerun = true
 # Delay after each executions
 rerun_delay = 500
 # Add additional arguments when running binary (bin/full_bin). Will run './tmp/main hello world'.
@@ -60,4 +60,4 @@ runner = "green"
 
 [misc]
 # Delete tmp directory on exit
-clean_on_exit = true
+clean_on_exit = false

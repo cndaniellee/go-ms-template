@@ -3,7 +3,7 @@ Mode: dev
 Name: user-rpc
 ListenOn: 0.0.0.0:9901
 
-#Etcd:
-#  Hosts:
-#  - goms_etcd:2379
-#  Key: user-rpc
+Etcd:
+  Hosts:
+    - goms_etcd:2379
+  Key: user-rpc

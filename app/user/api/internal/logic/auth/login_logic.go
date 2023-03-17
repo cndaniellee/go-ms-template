@@ -37,7 +37,8 @@ func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error)
 		err = response.ErrResp(0, errcode.Login, response.RpcCallError)
 		return
 	}
-	resp.Token = rpcResp.Token
+
+	resp = &types.AuthResp{Token: rpcResp.Token}
 
 	return
 }

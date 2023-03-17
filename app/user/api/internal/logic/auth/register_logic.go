@@ -37,7 +37,8 @@ func (l *RegisterLogic) Register(req *types.AuthReq) (resp *types.AuthResp, err 
 		err = response.ErrResp(0, errcode.Register, response.RpcCallError)
 		return
 	}
-	resp.Token = rpcResp.Token
+
+	resp = &types.AuthResp{Token: rpcResp.Token}
 
 	return
 }
