@@ -1,9 +1,11 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"goms/common/storage"
+)
 
 type User struct {
-	gorm.Model
+	storage.Model
 	Username string
 	Password string
 }

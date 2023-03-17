@@ -1,9 +1,7 @@
 package storage
 
 import (
-	"github.com/zeromicro/go-zero/core/service"
 	"goms/common/logtool"
-	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -18,7 +16,7 @@ type SqlDbConf struct {
 	SlowThreshold int
 }
 
-func NewSqlDb(mode string, conf SqlDbConf) *gorm.DB {
+func NewSqlDb(conf SqlDbConf) *gorm.DB {
 
 	// 创建数据库连接
 	conn, err := gorm.Open(mysql.Open(conf.DSN), &gorm.Config{
@@ -48,10 +46,6 @@ func NewSqlDb(mode string, conf SqlDbConf) *gorm.DB {
 			Logger:      logtool.NewSqlDbLogger(conf.SlowThreshold),
 		},
 	)
-
-	if mode == service.DevMode || mode == service.TestMode {
-		db.Debug()
-	}
 
 	return db
 }

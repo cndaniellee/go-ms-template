@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	"goms/app/user/rpc/internal/config"
 	"goms/app/user/rpc/internal/server"
 	"goms/app/user/rpc/internal/svc"
