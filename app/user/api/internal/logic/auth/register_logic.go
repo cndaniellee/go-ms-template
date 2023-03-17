@@ -2,7 +2,11 @@ package auth
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"goms/app/user/rpc/userclient"
+	"goms/common/auth"
+	"goms/common/logtool"
+	"goms/common/reply"
 
 	"goms/app/user/api/internal/svc"
 	"goms/app/user/api/internal/types"
@@ -28,17 +32,29 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 
 func (l *RegisterLogic) Register(req *types.AuthReq) (resp *types.AuthResp, err error) {
 
+	// 调用RPC服务
 	rpcResp, rpcErr := l.svcCtx.UserRpc.AuthRegister(l.ctx, &userclient.AuthReq{
 		Username: req.Username,
 		Password: req.Password,
 	})
 	if rpcErr != nil {
-		l.Logger.Errorf("rpc call error: %v", rpcErr.Error())
-		err = response.ErrResp(0, errcode.Register, response.RpcCallError)
+		if msg, note := logtool.CheckRpcConnErr(l.Logger, rpcErr); msg == reply.NoneMatching {
+			err = response.ErrResp(0, errcode.Register, response.NoneMatching, note)
+		} else {
+			err = response.ErrResp(1, errcode.Register, response.ServiceError)
+		}
 		return
 	}
 
-	resp = &types.AuthResp{Token: rpcResp.Token}
+	// 生成用户Token
+	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, rpcResp.UserId)
+	if err != nil {
+		l.Logger.Error(errors.Wrapf(err, "generate token error"))
+		err = response.ErrResp(2, errcode.Register, response.InternalError)
+		return
+	}
+
+	resp = &types.AuthResp{Token: token}
 
 	return
 }

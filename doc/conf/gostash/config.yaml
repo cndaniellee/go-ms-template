@@ -5,7 +5,7 @@ Clusters:
       Brokers:
         - "goms_kafka:9092"
       Topics:
-        - goms-log
+        - goms-logtool
       Group: pro
       Consumers: 8
   Filters:

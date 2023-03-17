@@ -2,12 +2,14 @@ package auth
 
 import (
 	"context"
-	"goms/app/user/rpc/userclient"
-
+	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/logx"
 	"goms/app/user/api/internal/svc"
 	"goms/app/user/api/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"goms/app/user/rpc/userclient"
+	"goms/common/auth"
+	"goms/common/logtool"
+	"goms/common/reply"
 	"goms/common/response"
 	"goms/common/response/errcode"
 )
@@ -28,17 +30,29 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error) {
 
+	// 调用RPC服务
 	rpcResp, rpcErr := l.svcCtx.UserRpc.AuthLogin(l.ctx, &userclient.AuthReq{
 		Username: req.Username,
 		Password: req.Password,
 	})
 	if rpcErr != nil {
-		l.Logger.Errorf("rpc call error: %v", rpcErr.Error())
-		err = response.ErrResp(0, errcode.Login, response.RpcCallError)
+		if msg, note := logtool.CheckRpcConnErr(l.Logger, rpcErr); msg == reply.NoneMatching {
+			err = response.ErrResp(0, errcode.Login, response.NoneMatching, note)
+		} else {
+			err = response.ErrResp(1, errcode.Login, response.ServiceError)
+		}
 		return
 	}
 
-	resp = &types.AuthResp{Token: rpcResp.Token}
+	// 生成用户Token
+	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, rpcResp.UserId)
+	if err != nil {
+		l.Logger.Error(errors.Wrapf(err, "generate token error"))
+		err = response.ErrResp(2, errcode.Login, response.InternalError)
+		return nil, err
+	}
+
+	resp = &types.AuthResp{Token: token}
 
 	return
 }

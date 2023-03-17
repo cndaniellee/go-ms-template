@@ -9,8 +9,8 @@ message AuthReq {
     string password = 2;
 }
 
-message AuthResp {
-    string token = 1;
+message AuthReply {
+    int64 userId = 1;
 }
 
 
@@ -18,14 +18,14 @@ message UserCurrentReq {
     int64 userId = 1;
 }
 
-message UserCurrentResp {
+message UserCurrentReply {
     string username = 1;
 }
 
 service user {
-    rpc AuthLogin(AuthReq) returns(AuthResp);
+    rpc AuthLogin(AuthReq) returns(AuthReply);
 
-    rpc AuthRegister(AuthReq) returns(AuthResp);
+    rpc AuthRegister(AuthReq) returns(AuthReply);
 
-    rpc UserCurrent(UserCurrentReq) returns(UserCurrentResp);
+    rpc UserCurrent(UserCurrentReq) returns(UserCurrentReply);
 }

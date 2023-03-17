@@ -22,7 +22,7 @@ func NewAuthRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Auth
 	}
 }
 
-func (l *AuthRegisterLogic) AuthRegister(in *user.AuthReq) (*user.AuthResp, error) {
+func (l *AuthRegisterLogic) AuthRegister(in *user.AuthReq) (*user.AuthReply, error) {
 
-	return &user.AuthResp{Token: "register_token"}, nil
+	return &user.AuthReply{UserId: 1}, nil
 }

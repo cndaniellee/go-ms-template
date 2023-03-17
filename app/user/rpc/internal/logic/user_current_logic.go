@@ -24,7 +24,7 @@ func NewUserCurrentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserC
 	}
 }
 
-func (l *UserCurrentLogic) UserCurrent(in *user.UserCurrentReq) (*user.UserCurrentResp, error) {
+func (l *UserCurrentLogic) UserCurrent(in *user.UserCurrentReq) (*user.UserCurrentReply, error) {
 
-	return &user.UserCurrentResp{Username: "User_" + strconv.Itoa(int(in.UserId))}, nil
+	return &user.UserCurrentReply{Username: "User_" + strconv.Itoa(int(in.UserId))}, nil
 }

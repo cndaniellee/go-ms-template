@@ -13,12 +13,12 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		{{if .HasRequest}}var req types.{{.RequestType}}
 		if err := httpx.Parse(r, &req); err != nil {
-            response.Write(w, response.ErrResp(-2, errcode.{{.Call}}, response.InvalidParam))
+            response.Write(w, response.ErrResp(-2, errcode.{{.Call}}, response.InvalidParam), nil)
 			return
 		}
 
         if err := svcCtx.Validate.Struct(req); err != nil {
-            response.Write(w, response.ErrResp(-1, errcode.{{.Call}}, response.MissingParam))
+            response.Write(w, response.ErrResp(-1, errcode.{{.Call}}, response.MissingParam), nil)
             return
         }
 

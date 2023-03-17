@@ -15,7 +15,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - /bind/conf/nginx:/etc/nginx/conf.d
-      - /bind/logs/nginx:/var/log/nginx
+      - /bind/logs/nginx:/var/logtool/nginx
     privileged: true
     restart: always
     networks:

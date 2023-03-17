@@ -2,12 +2,13 @@ package user
 
 import (
 	"context"
-	"goms/app/user/rpc/userclient"
-
+	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/logx"
 	"goms/app/user/api/internal/svc"
 	"goms/app/user/api/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"goms/app/user/rpc/userclient"
+	"goms/common/logtool"
+	"goms/common/request"
 	"goms/common/response"
 	"goms/common/response/errcode"
 )
@@ -28,12 +29,21 @@ func NewCurrentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CurrentLo
 
 func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 
+	// 解析用户ID
+	userId, err := request.ParseUserId(l.ctx)
+	if err != nil {
+		l.Logger.Error(errors.Wrapf(err, "user id parse error"))
+		err = response.ErrResp(0, errcode.Register, response.InternalError)
+		return
+	}
+
+	// 调用RPC服务
 	rpcResp, rpcErr := l.svcCtx.UserRpc.UserCurrent(l.ctx, &userclient.UserCurrentReq{
-		UserId: 1,
+		UserId: userId,
 	})
 	if rpcErr != nil {
-		l.Logger.Errorf("rpc call error: %v", rpcErr.Error())
-		err = response.ErrResp(0, errcode.Current, response.RpcCallError)
+		logtool.CheckRpcConnErr(l.Logger, rpcErr)
+		err = response.ErrResp(1, errcode.Current, response.ServiceError)
 		return
 	}
 

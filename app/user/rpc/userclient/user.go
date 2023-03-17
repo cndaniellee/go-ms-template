@@ -13,15 +13,15 @@ import (
 )
 
 type (
-	AuthReq         = user.AuthReq
-	AuthResp        = user.AuthResp
-	UserCurrentReq  = user.UserCurrentReq
-	UserCurrentResp = user.UserCurrentResp
+	AuthReply        = user.AuthReply
+	AuthReq          = user.AuthReq
+	UserCurrentReply = user.UserCurrentReply
+	UserCurrentReq   = user.UserCurrentReq
 
 	User interface {
-		AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error)
-		AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error)
-		UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentResp, error)
+		AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+		AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+		UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error)
 	}
 
 	defaultUser struct {
@@ -35,17 +35,17 @@ func NewUser(cli zrpc.Client) User {
 	}
 }
 
-func (m *defaultUser) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error) {
+func (m *defaultUser) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.AuthLogin(ctx, in, opts...)
 }
 
-func (m *defaultUser) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error) {
+func (m *defaultUser) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.AuthRegister(ctx, in, opts...)
 }
 
-func (m *defaultUser) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentResp, error) {
+func (m *defaultUser) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.UserCurrent(ctx, in, opts...)
 }

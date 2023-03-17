@@ -1,8 +1,8 @@
 filebeat.inputs:
-  - type: log
+  - type: logtool
     enabled: true
     paths:
-      - /var/lib/docker/containers/*/*-json.log
+      - /var/lib/docker/containers/*/*-json.logtool
 
 filebeat.config:
   modules:
@@ -15,8 +15,8 @@ processors:
 
 output.kafka:
   hosts: ["goms_kafka2:9092"]
-  #kafka-topics.sh --create --topic goms-log --replication-factor 1 --partitions 1 --bootstrap-server localhost:9092
-  topic: 'goms-log'
+  #kafka-topics.sh --create --topic goms-logtool --replication-factor 1 --partitions 1 --bootstrap-server localhost:9092
+  topic: 'goms-logtool'
   partition.hash:
     reachable_only: true
   required_acks: 1

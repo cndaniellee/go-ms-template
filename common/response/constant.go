@@ -1,16 +1,27 @@
 package response
 
 /**
-定义返回值常量，便于前端处理
+定义HTTP统一返回MSG，便于前端i18n
+客户端无需知悉具体错误信息，只需用错误码帮助定位错误位置
 */
 
-var (
-	OK = "OK"
+type ErrMsg string
 
-	ServerError = "SERVER_ERROR"
+const (
+	OK ErrMsg = "OK"
 
-	InvalidParam = "INVALID_PARAM"
-	MissingParam = "MISSING_PARAM"
+	// 未定义的错误
+	UnknownError ErrMsg = "UNKNOWN_ERROR"
 
-	RpcCallError = "RPC_CALL_ERROR"
+	// 参数解析、校验处使用的错误
+	InvalidParam ErrMsg = "INVALID_PARAM"
+	MissingParam ErrMsg = "MISSING_PARAM"
+
+	// 本服务和依赖服务出现的错误
+	InternalError ErrMsg = "INTERNAL_ERROR"
+	ServiceError  ErrMsg = "SERVICE_ERROR"
+
+	// 与数据相关的错误
+	NoneMatching ErrMsg = "NONE_MATCHING"
+	AccessDenied ErrMsg = "ACCESS_DENIED"
 )

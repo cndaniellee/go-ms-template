@@ -28,9 +28,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error)
-	AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error)
-	UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentResp, error)
+	AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+	AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+	UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error)
 }
 
 type userClient struct {
@@ -41,8 +41,8 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error) {
-	out := new(AuthResp)
+func (c *userClient) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+	out := new(AuthReply)
 	err := c.cc.Invoke(ctx, User_AuthLogin_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *userClient) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *userClient) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthResp, error) {
-	out := new(AuthResp)
+func (c *userClient) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+	out := new(AuthReply)
 	err := c.cc.Invoke(ctx, User_AuthRegister_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +59,8 @@ func (c *userClient) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc
 	return out, nil
 }
 
-func (c *userClient) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentResp, error) {
-	out := new(UserCurrentResp)
+func (c *userClient) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error) {
+	out := new(UserCurrentReply)
 	err := c.cc.Invoke(ctx, User_UserCurrent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *userClient) UserCurrent(ctx context.Context, in *UserCurrentReq, opts .
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	AuthLogin(context.Context, *AuthReq) (*AuthResp, error)
-	AuthRegister(context.Context, *AuthReq) (*AuthResp, error)
-	UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentResp, error)
+	AuthLogin(context.Context, *AuthReq) (*AuthReply, error)
+	AuthRegister(context.Context, *AuthReq) (*AuthReply, error)
+	UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -82,13 +82,13 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) AuthLogin(context.Context, *AuthReq) (*AuthResp, error) {
+func (UnimplementedUserServer) AuthLogin(context.Context, *AuthReq) (*AuthReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthLogin not implemented")
 }
-func (UnimplementedUserServer) AuthRegister(context.Context, *AuthReq) (*AuthResp, error) {
+func (UnimplementedUserServer) AuthRegister(context.Context, *AuthReq) (*AuthReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthRegister not implemented")
 }
-func (UnimplementedUserServer) UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentResp, error) {
+func (UnimplementedUserServer) UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserCurrent not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}

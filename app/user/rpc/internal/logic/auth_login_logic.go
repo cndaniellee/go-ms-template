@@ -22,7 +22,7 @@ func NewAuthLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AuthLog
 	}
 }
 
-func (l *AuthLoginLogic) AuthLogin(in *user.AuthReq) (*user.AuthResp, error) {
+func (l *AuthLoginLogic) AuthLogin(in *user.AuthReq) (*user.AuthReply, error) {
 
-	return &user.AuthResp{Token: "login_token"}, nil
+	return &user.AuthReply{UserId: 1}, nil
 }
