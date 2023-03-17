@@ -1,9 +1,12 @@
 package config
 
-import {{.authImport}}
+import (
+    {{.authImport}}
+    "goms/common/auth"
+)
 
 type Config struct {
 	rest.RestConf
-	{{.auth}}
-	{{.jwtTrans}}
+
+	JwtAuth auth.JwtAuthConf
 }

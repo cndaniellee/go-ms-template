@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type JwtAuth struct {
+type JwtAuthConf struct {
 	AccessSecret string
 	AccessExpire int64
 }
@@ -17,7 +17,7 @@ type JwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateUserToken(config JwtAuth, userId int64) (string, error) {
+func GenerateUserToken(config JwtAuthConf, userId int64) (string, error) {
 	claims := &JwtClaims{
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{

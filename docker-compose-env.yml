@@ -113,7 +113,7 @@ services:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
       TZ: Asia/Shanghai
     volumes:
-      - /bind/conf/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /bind/conf/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/confstru/elasticsearch.yml
       - /bind/data/elasticsearch:/usr/share/elasticsearch/data
     restart: always
     ports:

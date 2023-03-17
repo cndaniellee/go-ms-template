@@ -6,7 +6,7 @@ filebeat.inputs:
 
 filebeat.config:
   modules:
-    path: ${path.config}/modules.d/*.yml
+    path: ${path.confstru}/modules.d/*.yml
     reload.enabled: false
 
 processors:
