@@ -36,8 +36,8 @@ func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error)
 		Password: req.Password,
 	})
 	if rpcErr != nil {
-		if msg, note := logtool.CheckRpcConnErr(l.Logger, rpcErr); msg == reply.NoneMatching {
-			err = response.ErrResp(0, errcode.Login, response.NoneMatching, note)
+		if code, msg := logtool.CheckRpcConnErr(l.Logger, rpcErr); code == reply.NoneMatching {
+			err = response.ErrResp(0, errcode.Login, response.NoneMatching, msg)
 		} else {
 			err = response.ErrResp(1, errcode.Login, response.ServiceError)
 		}
@@ -47,7 +47,7 @@ func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error)
 	// 生成用户Token
 	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, rpcResp.UserId)
 	if err != nil {
-		l.Logger.Error(errors.Wrapf(err, "generate token error"))
+		l.Logger.Error(errors.Wrapf(err, "generate token failed"))
 		err = response.ErrResp(2, errcode.Login, response.InternalError)
 		return nil, err
 	}

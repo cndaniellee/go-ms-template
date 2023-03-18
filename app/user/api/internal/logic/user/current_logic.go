@@ -32,7 +32,7 @@ func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrapf(err, "user id parse error"))
+		l.Logger.Error(errors.Wrapf(err, "user id parse failed"))
 		err = response.ErrResp(0, errcode.Register, response.InternalError)
 		return
 	}

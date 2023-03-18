@@ -2,10 +2,12 @@ package logic
 
 import (
 	"context"
-	"goms/app/user/rpc/internal/svc"
-	"goms/app/user/rpc/pb/user"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"goms/app/user/rpc/internal/svc"
+	"goms/app/user/rpc/model"
+	"goms/app/user/rpc/pb/user"
+	"goms/common/reply"
+	"google.golang.org/grpc/status"
 )
 
 type AuthLoginLogic struct {
@@ -24,5 +26,14 @@ func NewAuthLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AuthLog
 
 func (l *AuthLoginLogic) AuthLogin(in *user.AuthReq) (*user.AuthReply, error) {
 
-	return &user.AuthReply{UserId: 1}, nil
+	// 校验用户
+	u := &model.User{}
+	if err := l.svcCtx.SqlDb.Where("username = ?", in.Username).First(u).Error; err != nil {
+		return nil, status.Error(reply.NoneMatching, err.Error())
+	}
+	if u.Password != in.Password {
+		return nil, status.Error(reply.NoneMatching, "wrong password")
+	}
+
+	return &user.AuthReply{UserId: u.ID}, nil
 }
