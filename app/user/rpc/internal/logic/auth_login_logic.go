@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"github.com/CNDanielLee/go-utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"goms/app/user/rpc/internal/svc"
 	"goms/app/user/rpc/model"
@@ -31,7 +32,7 @@ func (l *AuthLoginLogic) AuthLogin(in *user.AuthReq) (*user.AuthReply, error) {
 	if err := l.svcCtx.SqlDb.Where("username = ?", in.Username).First(u).Error; err != nil {
 		return nil, status.Error(reply.NoneMatching, err.Error())
 	}
-	if u.Password != in.Password {
+	if utils.EncryptStrToMd5(in.Password) != u.Password {
 		return nil, status.Error(reply.NoneMatching, "wrong password")
 	}
 

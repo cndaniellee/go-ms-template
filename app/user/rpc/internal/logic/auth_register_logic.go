@@ -2,15 +2,15 @@ package logic
 
 import (
 	"context"
+	"github.com/CNDanielLee/go-utils"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/logx"
 	"goms/app/user/rpc/internal/svc"
 	"goms/app/user/rpc/model"
 	"goms/app/user/rpc/pb/user"
 	"goms/common/reply"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type AuthRegisterLogic struct {
@@ -35,7 +35,7 @@ func (l *AuthRegisterLogic) AuthRegister(in *user.AuthReq) (*user.AuthReply, err
 	}
 
 	// 创建用户
-	u := &model.User{Username: in.Username, Password: in.Password}
+	u := &model.User{Username: in.Username, Password: utils.EncryptStrToMd5(in.Password)}
 	if err := l.svcCtx.SqlDb.Create(u).Error; err != nil {
 		l.Logger.Error(errors.Wrapf(err, "create user failed"))
 		return nil, status.Error(reply.ServiceError, err.Error())

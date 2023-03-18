@@ -6,6 +6,7 @@ Port: 9801
 
 JwtAuth:
   AccessSecret: q6dfy--fm3r=1ni4*acv!9bdv9yxbb@*83crkq1oa4urgio%&b
+  AccessSecret: 840f98f283c7e914f98a87c3f30b3f2f
   AccessExpire: 7200
 
 UserRpcConf:
