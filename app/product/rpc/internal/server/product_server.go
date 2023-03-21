@@ -41,3 +41,9 @@ func (s *ProductServer) Remove(ctx context.Context, in *product.IdReq) (*product
 	l := logic.NewRemoveLogic(ctx, s.svcCtx)
 	return l.Remove(in)
 }
+
+// Internal
+func (s *ProductServer) ListByIds(ctx context.Context, in *product.ListByIdsReq) (*product.ListByIdsReply, error) {
+	l := logic.NewListByIdsLogic(ctx, s.svcCtx)
+	return l.ListByIds(in)
+}

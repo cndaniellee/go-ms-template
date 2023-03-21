@@ -37,6 +37,7 @@ func (l *EditLogic) Edit(req *types.EditReq) (resp *types.IdResp, err error) {
 		Title:       req.Title,
 		Category:    req.Category,
 		Stock:       req.Stock,
+		Price:       req.Price,
 		Description: req.Description,
 	})
 	if err != nil {

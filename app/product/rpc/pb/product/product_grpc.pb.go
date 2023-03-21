@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Product_List_FullMethodName   = "/product.product/List"
-	Product_Detail_FullMethodName = "/product.product/Detail"
-	Product_Edit_FullMethodName   = "/product.product/Edit"
-	Product_Remove_FullMethodName = "/product.product/Remove"
+	Product_List_FullMethodName      = "/product.product/List"
+	Product_Detail_FullMethodName    = "/product.product/Detail"
+	Product_Edit_FullMethodName      = "/product.product/Edit"
+	Product_Remove_FullMethodName    = "/product.product/Remove"
+	Product_ListByIds_FullMethodName = "/product.product/ListByIds"
 )
 
 // ProductClient is the client API for Product service.
@@ -33,6 +34,8 @@ type ProductClient interface {
 	Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
 	Edit(ctx context.Context, in *EditReq, opts ...grpc.CallOption) (*IdReply, error)
 	Remove(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
+	// Internal
+	ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error)
 }
 
 type productClient struct {
@@ -79,6 +82,15 @@ func (c *productClient) Remove(ctx context.Context, in *IdReq, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *productClient) ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error) {
+	out := new(ListByIdsReply)
+	err := c.cc.Invoke(ctx, Product_ListByIds_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility
@@ -87,6 +99,8 @@ type ProductServer interface {
 	Detail(context.Context, *IdReq) (*DetailReply, error)
 	Edit(context.Context, *EditReq) (*IdReply, error)
 	Remove(context.Context, *IdReq) (*Empty, error)
+	// Internal
+	ListByIds(context.Context, *ListByIdsReq) (*ListByIdsReply, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -105,6 +119,9 @@ func (UnimplementedProductServer) Edit(context.Context, *EditReq) (*IdReply, err
 }
 func (UnimplementedProductServer) Remove(context.Context, *IdReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
+}
+func (UnimplementedProductServer) ListByIds(context.Context, *ListByIdsReq) (*ListByIdsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListByIds not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 
@@ -191,6 +208,24 @@ func _Product_Remove_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_ListByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListByIdsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).ListByIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_ListByIds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).ListByIds(ctx, req.(*ListByIdsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +248,10 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Remove",
 			Handler:    _Product_Remove_Handler,
+		},
+		{
+			MethodName: "ListByIds",
+			Handler:    _Product_ListByIds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

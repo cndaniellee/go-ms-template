@@ -53,6 +53,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 		Title:       reply.Title,
 		Category:    reply.Category,
 		Stock:       reply.Stock,
+		Price:       reply.Price,
 		Description: reply.Description,
 		CreatedAt:   reply.CreatedAt,
 	}

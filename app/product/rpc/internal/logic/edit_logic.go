@@ -33,6 +33,7 @@ func (l *EditLogic) Edit(in *product.EditReq) (*product.IdReply, error) {
 		Title:       in.Title,
 		Category:    model.ProductCategory(in.Category),
 		Stock:       in.Stock,
+		Price:       in.Price,
 		Description: in.Description,
 	}
 	// 0：新增，Other：编辑

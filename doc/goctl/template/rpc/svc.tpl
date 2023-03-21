@@ -14,21 +14,16 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	sqlDb := storage.NewSqlDb(c.SqlDB)
 	if c.Mode == service.DevMode || c.Mode == service.TestMode {
 		sqlDb.Debug()
-		err := sqlDb.AutoMigrate(&model.Example{})
-		if err != nil {
-			panic(err.Error())
-		}
+		logx.Must(sqlDb.AutoMigrate(&model.Example{}))
 	}
 
 	// 初始化缓存
-	red, err := redis.NewRedis(c.Redis.RedisConf)
-	if err != nil {
-		panic(err.Error())
-	}
+	rds, err := redis.NewRedis(c.Redis.RedisConf)
+	logx.Must(err)
 
 	return &ServiceContext{
 		Config:c,
 
-        ExampleModel: model.NewExampleModel(sqlDb, red),
+        ExampleModel: model.NewExampleModel(sqlDb, rds),
 	}
 }

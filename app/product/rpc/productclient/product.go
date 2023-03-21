@@ -13,21 +13,25 @@ import (
 )
 
 type (
-	DetailReply = product.DetailReply
-	EditReq     = product.EditReq
-	Empty       = product.Empty
-	IdReply     = product.IdReply
-	IdReq       = product.IdReq
-	ListItem    = product.ListItem
-	ListReply   = product.ListReply
-	ListReq     = product.ListReq
-	Page        = product.Page
+	DetailReply    = product.DetailReply
+	EditReq        = product.EditReq
+	Empty          = product.Empty
+	IdReply        = product.IdReply
+	IdReq          = product.IdReq
+	ListByIdsReply = product.ListByIdsReply
+	ListByIdsReq   = product.ListByIdsReq
+	ListItem       = product.ListItem
+	ListReply      = product.ListReply
+	ListReq        = product.ListReq
+	Page           = product.Page
 
 	Product interface {
 		List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error)
 		Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
 		Edit(ctx context.Context, in *EditReq, opts ...grpc.CallOption) (*IdReply, error)
 		Remove(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
+		// Internal
+		ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error)
 	}
 
 	defaultProduct struct {
@@ -59,4 +63,10 @@ func (m *defaultProduct) Edit(ctx context.Context, in *EditReq, opts ...grpc.Cal
 func (m *defaultProduct) Remove(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.Remove(ctx, in, opts...)
+}
+
+// Internal
+func (m *defaultProduct) ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ListByIds(ctx, in, opts...)
 }

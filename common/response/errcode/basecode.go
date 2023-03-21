@@ -12,4 +12,5 @@ package errcode
 const (
 	User int = (iota + 10) * 10000
 	Product
+	Order
 )

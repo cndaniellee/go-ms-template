@@ -57,6 +57,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 			Title:    item.Title,
 			Category: item.Category,
 			Stock:    item.Stock,
+			Price:    item.Price,
 		}
 	}
 

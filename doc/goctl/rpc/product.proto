@@ -9,9 +9,9 @@ Common
  */
 message Empty {}
 message Page {
-    int32 Page = 1;
-    int32 PageSize = 2;
-    int64 Total = 3;
+    int32 page = 1;
+    int32 pageSize = 2;
+    int64 total = 3;
 }
 
 // List
@@ -20,6 +20,7 @@ message ListItem {
     string title = 2;
     int32 category = 3;
     int64 stock = 4;
+    int64 price = 5;
 }
 
 message ListReq {
@@ -44,8 +45,9 @@ message DetailReply {
     string title = 2;
     int32 category = 3;
     int64 stock = 4;
-    string description = 5;
-    int64 createdAt = 6;
+    int64 price = 5;
+    string description = 6;
+    int64 createdAt = 7;
 }
 
 // Edit
@@ -54,11 +56,21 @@ message EditReq {
     string title = 2;
     int32 category = 3;
     int64 stock = 4;
-    string description = 5;
+    int64 price = 5;
+    string description = 6;
 }
 
 message IdReply {
     int64 id = 1;
+}
+
+// Internal
+message ListByIdsReq {
+    repeated int64 ids = 1;
+}
+
+message ListByIdsReply {
+    repeated ListItem list = 1;
 }
 
 service product {
@@ -69,4 +81,7 @@ service product {
     rpc Edit(EditReq) returns(IdReply);
 
     rpc Remove(IdReq) returns(Empty);
+
+    // Internal
+    rpc ListByIds(ListByIdsReq) returns(ListByIdsReply);
 }

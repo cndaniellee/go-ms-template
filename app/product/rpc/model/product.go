@@ -25,6 +25,7 @@ type Product struct {
 	Title       string          `gorm:"type:varchar(128);comment:标题"`
 	Category    ProductCategory `gorm:"type:tinyint(1);comment:类型"`
 	Stock       int64           `gorm:"type:bigint(20);comment:库存"`
+	Price       int64           `gorm:"type:bigint(20);comment:价格（单位：分）"`
 	Description string          `gorm:"type:mediumtext;comment:详情描述"`
 }
 
@@ -35,24 +36,27 @@ type (
 
 		Upsert(ctx context.Context, user *Product) error
 		Delete(ctx context.Context, id int64) error
+
+		ListByIds(ctx context.Context, ids []int64) ([]*Product, error)
 	}
 
 	productModel struct {
 		db    *gorm.DB
 		cache cache.Cache
+		sf    syncx.SingleFlight
 		table string
 	}
 )
 
 func NewProductModel(db *gorm.DB, r *redis.Redis) ProductModel {
 	c := cache.NewNode(r, syncx.NewSingleFlight(), cache.NewStat("user"), gorm.ErrRecordNotFound, cache.WithExpiry(time.Hour), cache.WithNotFoundExpiry(time.Hour))
-	return &productModel{db: db, cache: c, table: "product"}
+	return &productModel{db: db, cache: c, sf: syncx.NewSingleFlight(), table: "product"}
 }
 
 func (m *productModel) List(ctx context.Context, search string, category ProductCategory, page, pageSize int) ([]*Product, int64, error) {
 	var total int64
 	var products []*Product
-	session := m.db.WithContext(ctx)
+	session := m.db.WithContext(ctx).Model(&Product{})
 	if search != "" {
 		session.Where("title like ?", "%"+search+"%")
 	}
@@ -67,27 +71,34 @@ func (m *productModel) List(ctx context.Context, search string, category Product
 }
 
 func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error) {
-	product := &Product{}
 	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	// 读取缓存
-	if err := m.cache.GetCtx(ctx, cacheKey, product); err == nil {
-		return product, nil
-	}
-	if err := m.db.WithContext(ctx).Where("id = ?", id).First(product).Error; err != nil {
-		// 无数据写入占位符
-		if err == gorm.ErrRecordNotFound {
-			err = m.cache.SetCtx(ctx, cacheKey, "*")
-			if err != nil {
-				logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
-			}
+	result, err := m.sf.Do(cacheKey, func() (any, error) {
+		product := &Product{}
+		// 读取缓存
+		if err := m.cache.GetCtx(ctx, cacheKey, product); err == nil {
+			return product, nil
 		}
+		// 查询数据
+		if err := m.db.WithContext(ctx).Where("id = ?", id).First(product).Error; err != nil {
+			// 无数据写入占位符
+			if err == gorm.ErrRecordNotFound {
+				err = m.cache.SetCtx(ctx, cacheKey, "*")
+				if err != nil {
+					logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
+				}
+			}
+			return nil, err
+		}
+		// 写入缓存，缓存错误不影响业务
+		if err := m.cache.SetCtx(ctx, cacheKey, product); err != nil {
+			logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
+		}
+		return product, nil
+	})
+	if err != nil {
 		return nil, err
 	}
-	// 写入缓存，缓存错误不影响业务
-	if err := m.cache.SetCtx(ctx, cacheKey, product); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
-	}
-	return product, nil
+	return result.(*Product), nil
 }
 
 func (m *productModel) Upsert(ctx context.Context, product *Product) error {
@@ -118,4 +129,12 @@ func (m *productModel) Delete(ctx context.Context, id int64) error {
 		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
 	}
 	return nil
+}
+
+func (m *productModel) ListByIds(ctx context.Context, ids []int64) ([]*Product, error) {
+	var products []*Product
+	if err := m.db.WithContext(ctx).Where("id in ?", ids).Find(products).Error; err != nil {
+		return nil, err
+	}
+	return products, nil
 }

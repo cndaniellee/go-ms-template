@@ -44,6 +44,7 @@ func (l *DetailLogic) Detail(in *product.IdReq) (*product.DetailReply, error) {
 		Title:       p.Title,
 		Category:    int32(p.Category),
 		Stock:       p.Stock,
+		Price:       p.Price,
 		Description: p.Description,
 		CreatedAt:   p.CreatedAt.UnixMilli(),
 	}, nil
