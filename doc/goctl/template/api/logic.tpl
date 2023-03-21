@@ -3,7 +3,7 @@ package {{.pkgName}}
 import (
 	{{.imports}}
     "goms/common/response"
-    "goms/common/response/errcode"
+    "goms/common/response/errcode/{{.pkgName}}code"
 )
 
 type {{.logic}} struct {
@@ -23,7 +23,7 @@ func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} 
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	// todo: add your logic here and delete this line
 
-    err = response.ErrResp(0, errcode.{{.function}}, "example")
+    err = response.ErrResp(0, {{.pkgName}}code.{{.function}}, response.InternalError, "example")
 
 	{{.returnString}}
 }

@@ -13,15 +13,15 @@ import (
 )
 
 type (
-	AuthReply        = user.AuthReply
-	AuthReq          = user.AuthReq
-	UserCurrentReply = user.UserCurrentReply
-	UserCurrentReq   = user.UserCurrentReq
+	AuthReply    = user.AuthReply
+	AuthReq      = user.AuthReq
+	CurrentReply = user.CurrentReply
+	CurrentReq   = user.CurrentReq
 
 	User interface {
-		AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
-		AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
-		UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error)
+		Login(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+		Register(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+		Current(ctx context.Context, in *CurrentReq, opts ...grpc.CallOption) (*CurrentReply, error)
 	}
 
 	defaultUser struct {
@@ -35,17 +35,17 @@ func NewUser(cli zrpc.Client) User {
 	}
 }
 
-func (m *defaultUser) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+func (m *defaultUser) Login(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.AuthLogin(ctx, in, opts...)
+	return client.Login(ctx, in, opts...)
 }
 
-func (m *defaultUser) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+func (m *defaultUser) Register(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.AuthRegister(ctx, in, opts...)
+	return client.Register(ctx, in, opts...)
 }
 
-func (m *defaultUser) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error) {
+func (m *defaultUser) Current(ctx context.Context, in *CurrentReq, opts ...grpc.CallOption) (*CurrentReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.UserCurrent(ctx, in, opts...)
+	return client.Current(ctx, in, opts...)
 }

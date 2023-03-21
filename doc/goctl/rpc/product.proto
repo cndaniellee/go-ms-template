@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "./product";
+
+/*
+Common
+ */
+message Empty {}
+message Page {
+    int32 Page = 1;
+    int32 PageSize = 2;
+    int64 Total = 3;
+}
+
+// List
+message ListItem {
+    int64 id = 1;
+    string title = 2;
+    int32 category = 3;
+    int64 stock = 4;
+}
+
+message ListReq {
+    string search = 1;
+    int32 category = 2;
+    int32 page = 3;
+    int32 pageSize = 4;
+}
+
+message ListReply {
+    repeated ListItem list = 1;
+    Page page = 2;
+}
+
+// Detail
+message IdReq {
+    int64 id = 1;
+}
+
+message DetailReply {
+    int64 id = 1;
+    string title = 2;
+    int32 category = 3;
+    int64 stock = 4;
+    string description = 5;
+    int64 createdAt = 6;
+}
+
+// Edit
+message EditReq {
+    int64 id = 1;
+    string title = 2;
+    int32 category = 3;
+    int64 stock = 4;
+    string description = 5;
+}
+
+message IdReply {
+    int64 id = 1;
+}
+
+service product {
+    rpc List(ListReq) returns(ListReply);
+
+    rpc Detail(IdReq) returns(DetailReply);
+
+    rpc Edit(EditReq) returns(IdReply);
+
+    rpc Remove(IdReq) returns(Empty);
+}

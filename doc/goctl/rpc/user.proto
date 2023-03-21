@@ -14,18 +14,18 @@ message AuthReply {
 }
 
 
-message UserCurrentReq {
+message CurrentReq {
     int64 userId = 1;
 }
 
-message UserCurrentReply {
+message CurrentReply {
     string username = 1;
 }
 
 service user {
-    rpc AuthLogin(AuthReq) returns(AuthReply);
+    rpc Login(AuthReq) returns(AuthReply);
 
-    rpc AuthRegister(AuthReq) returns(AuthReply);
+    rpc Register(AuthReq) returns(AuthReply);
 
-    rpc UserCurrent(UserCurrentReq) returns(UserCurrentReply);
+    rpc Current(CurrentReq) returns(CurrentReply);
 }

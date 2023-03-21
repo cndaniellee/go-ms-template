@@ -22,17 +22,17 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-func (s *UserServer) AuthLogin(ctx context.Context, in *user.AuthReq) (*user.AuthReply, error) {
-	l := logic.NewAuthLoginLogic(ctx, s.svcCtx)
-	return l.AuthLogin(in)
+func (s *UserServer) Login(ctx context.Context, in *user.AuthReq) (*user.AuthReply, error) {
+	l := logic.NewLoginLogic(ctx, s.svcCtx)
+	return l.Login(in)
 }
 
-func (s *UserServer) AuthRegister(ctx context.Context, in *user.AuthReq) (*user.AuthReply, error) {
-	l := logic.NewAuthRegisterLogic(ctx, s.svcCtx)
-	return l.AuthRegister(in)
+func (s *UserServer) Register(ctx context.Context, in *user.AuthReq) (*user.AuthReply, error) {
+	l := logic.NewRegisterLogic(ctx, s.svcCtx)
+	return l.Register(in)
 }
 
-func (s *UserServer) UserCurrent(ctx context.Context, in *user.UserCurrentReq) (*user.UserCurrentReply, error) {
-	l := logic.NewUserCurrentLogic(ctx, s.svcCtx)
-	return l.UserCurrent(in)
+func (s *UserServer) Current(ctx context.Context, in *user.CurrentReq) (*user.CurrentReply, error) {
+	l := logic.NewCurrentLogic(ctx, s.svcCtx)
+	return l.Current(in)
 }

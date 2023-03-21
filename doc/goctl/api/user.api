@@ -12,16 +12,16 @@ info(
 
 @server(
 	prefix: user/v1
-	group: auth
+	group: user
 )
 service user {
 	@doc "注册"
 	@handler register
-	post /auth/register (AuthReq) returns (AuthResp)
+	post /register (AuthReq) returns (AuthResp)
 	
 	@doc "登录"
 	@handler login
-	post /auth/login (AuthReq) returns (AuthResp)
+	post /login (AuthReq) returns (AuthResp)
 }
 
 @server(
@@ -32,5 +32,5 @@ service user {
 service user {
 	@doc "获取用户信息"
 	@handler current
-	get /user/current returns (CurrentResp)
+	get /current returns (CurrentResp)
 }

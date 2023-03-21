@@ -3,7 +3,6 @@ package response
 import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
-	"strings"
 )
 
 /*
@@ -38,11 +37,9 @@ func Write(w http.ResponseWriter, err error, data any) {
 }
 
 // ErrResp Logic内返回错误码从2开始，Handle占前两个位置
-func ErrResp(pos, baseCode int, msg ErrMsg, note ...string) (resp Response) {
+func ErrResp(pos, baseCode int, msg ErrMsg, note string) (resp Response) {
 	resp.Code = baseCode + pos + 2
 	resp.Msg = msg
-	if len(note) > 0 {
-		resp.Data = strings.Join(note, " ")
-	}
+	resp.Data = note
 	return
 }

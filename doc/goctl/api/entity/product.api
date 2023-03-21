@@ -1,0 +1,61 @@
+syntax = "v1"
+
+import "common/common.api"
+
+info(
+    title: "产品库存实体"
+    desc: "Product entities"
+    author: "CNDanielLee"
+    email: "contact@daniellee.cn"
+    version: "1.0.0"
+)
+
+type (
+    ListItem {
+        ID          int64   `json:"id"`
+        Title       string  `json:"title"`
+        Category    int32   `json:"category"`
+        Stock       int64   `json:"stock"`
+    }
+
+    ListReq {
+        Search   string `json:"search"`
+        Category int32  `json:"category"`
+
+        Page int32 `json:"page" validate:"gte=1"`
+        PageSize int32 `json:"pageSize" validate:"gte=5,lte=100"`
+    }
+
+    ListResp {
+        List []ListItem `json:"list"`
+        Page Page       `json:"page"`
+    }
+)
+
+type (
+    IdReq {
+        ID int64 `json:"id" validate:"gte=1"`
+    }
+
+    DetailResp {
+        ID          int64   `json:"id"`
+        Title       string  `json:"title"`
+        Category    int32   `json:"category"`
+        Stock       int64   `json:"stock"`
+        Description string  `json:"description"`
+        CreatedAt   int64   `json:"createdAt"`
+    }
+
+    EditReq {
+        ID          int64   `json:"id"`
+        Title       string  `json:"title"`
+        Category    int32   `json:"category"`
+        Stock       int64   `json:"stock"`
+        Description string  `json:"description"`
+    }
+
+    IdResp {
+        ID int64 `json:"id"`
+    }
+)
+

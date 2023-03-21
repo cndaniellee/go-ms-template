@@ -4,7 +4,6 @@ package handler
 import (
 	"net/http"
 
-	auth "goms/app/user/api/internal/handler/auth"
 	user "goms/app/user/api/internal/handler/user"
 	"goms/app/user/api/internal/svc"
 
@@ -16,13 +15,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/auth/register",
-				Handler: auth.RegisterHandler(serverCtx),
+				Path:    "/register",
+				Handler: user.RegisterHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/auth/login",
-				Handler: auth.LoginHandler(serverCtx),
+				Path:    "/login",
+				Handler: user.LoginHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/user/v1"),
@@ -32,7 +31,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/user/current",
+				Path:    "/current",
 				Handler: user.CurrentHandler(serverCtx),
 			},
 		},

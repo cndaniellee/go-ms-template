@@ -8,6 +8,11 @@ Etcd:
     - goms_etcd:2379
   Key: user-rpc
 
+Redis:
+  Host: goms_redis:6379
+  Type: node
+  Pass: 840f98f283c7e914f98a87c3f30b3f2f
+
 SqlDb:
   DSN: root:840f98f283c7e914f98a87c3f30b3f2f@tcp(goms_mysql:3306)/goms_user?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
   MaxOpenConns: 100   #最大连接数

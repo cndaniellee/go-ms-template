@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_AuthLogin_FullMethodName    = "/user.user/AuthLogin"
-	User_AuthRegister_FullMethodName = "/user.user/AuthRegister"
-	User_UserCurrent_FullMethodName  = "/user.user/UserCurrent"
+	User_Login_FullMethodName    = "/user.user/Login"
+	User_Register_FullMethodName = "/user.user/Register"
+	User_Current_FullMethodName  = "/user.user/Current"
 )
 
 // UserClient is the client API for User service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
-	AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
-	UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error)
+	Login(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+	Register(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error)
+	Current(ctx context.Context, in *CurrentReq, opts ...grpc.CallOption) (*CurrentReply, error)
 }
 
 type userClient struct {
@@ -41,27 +41,27 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) AuthLogin(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+func (c *userClient) Login(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	out := new(AuthReply)
-	err := c.cc.Invoke(ctx, User_AuthLogin_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, User_Login_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) AuthRegister(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
+func (c *userClient) Register(ctx context.Context, in *AuthReq, opts ...grpc.CallOption) (*AuthReply, error) {
 	out := new(AuthReply)
-	err := c.cc.Invoke(ctx, User_AuthRegister_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, User_Register_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) UserCurrent(ctx context.Context, in *UserCurrentReq, opts ...grpc.CallOption) (*UserCurrentReply, error) {
-	out := new(UserCurrentReply)
-	err := c.cc.Invoke(ctx, User_UserCurrent_FullMethodName, in, out, opts...)
+func (c *userClient) Current(ctx context.Context, in *CurrentReq, opts ...grpc.CallOption) (*CurrentReply, error) {
+	out := new(CurrentReply)
+	err := c.cc.Invoke(ctx, User_Current_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +72,9 @@ func (c *userClient) UserCurrent(ctx context.Context, in *UserCurrentReq, opts .
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	AuthLogin(context.Context, *AuthReq) (*AuthReply, error)
-	AuthRegister(context.Context, *AuthReq) (*AuthReply, error)
-	UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentReply, error)
+	Login(context.Context, *AuthReq) (*AuthReply, error)
+	Register(context.Context, *AuthReq) (*AuthReply, error)
+	Current(context.Context, *CurrentReq) (*CurrentReply, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -82,14 +82,14 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) AuthLogin(context.Context, *AuthReq) (*AuthReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AuthLogin not implemented")
+func (UnimplementedUserServer) Login(context.Context, *AuthReq) (*AuthReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServer) AuthRegister(context.Context, *AuthReq) (*AuthReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AuthRegister not implemented")
+func (UnimplementedUserServer) Register(context.Context, *AuthReq) (*AuthReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedUserServer) UserCurrent(context.Context, *UserCurrentReq) (*UserCurrentReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UserCurrent not implemented")
+func (UnimplementedUserServer) Current(context.Context, *CurrentReq) (*CurrentReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Current not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -104,56 +104,56 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 	s.RegisterService(&User_ServiceDesc, srv)
 }
 
-func _User_AuthLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).AuthLogin(ctx, in)
+		return srv.(UserServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_AuthLogin_FullMethodName,
+		FullMethod: User_Login_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).AuthLogin(ctx, req.(*AuthReq))
+		return srv.(UserServer).Login(ctx, req.(*AuthReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_AuthRegister_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).AuthRegister(ctx, in)
+		return srv.(UserServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_AuthRegister_FullMethodName,
+		FullMethod: User_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).AuthRegister(ctx, req.(*AuthReq))
+		return srv.(UserServer).Register(ctx, req.(*AuthReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_UserCurrent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserCurrentReq)
+func _User_Current_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CurrentReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).UserCurrent(ctx, in)
+		return srv.(UserServer).Current(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_UserCurrent_FullMethodName,
+		FullMethod: User_Current_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).UserCurrent(ctx, req.(*UserCurrentReq))
+		return srv.(UserServer).Current(ctx, req.(*CurrentReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -166,16 +166,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AuthLogin",
-			Handler:    _User_AuthLogin_Handler,
+			MethodName: "Login",
+			Handler:    _User_Login_Handler,
 		},
 		{
-			MethodName: "AuthRegister",
-			Handler:    _User_AuthRegister_Handler,
+			MethodName: "Register",
+			Handler:    _User_Register_Handler,
 		},
 		{
-			MethodName: "UserCurrent",
-			Handler:    _User_UserCurrent_Handler,
+			MethodName: "Current",
+			Handler:    _User_Current_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

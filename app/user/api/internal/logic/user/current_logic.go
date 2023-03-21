@@ -7,10 +7,11 @@ import (
 	"goms/app/user/api/internal/svc"
 	"goms/app/user/api/internal/types"
 	"goms/app/user/rpc/userclient"
-	"goms/common/logtool"
 	"goms/common/request"
 	"goms/common/response"
-	"goms/common/response/errcode"
+	"goms/common/response/errcode/usercode"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CurrentLogic struct {
@@ -32,22 +33,29 @@ func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrapf(err, "user id parse failed"))
-		err = response.ErrResp(0, errcode.Register, response.InternalError)
+		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
+		err = response.ErrResp(0, usercode.Register, response.InternalError, err.Error())
 		return
 	}
 
 	// 调用RPC服务
-	rpcResp, rpcErr := l.svcCtx.UserRpc.UserCurrent(l.ctx, &userclient.UserCurrentReq{
+	reply, err := l.svcCtx.UserRpc.Current(l.ctx, &userclient.CurrentReq{
 		UserId: userId,
 	})
-	if rpcErr != nil {
-		logtool.CheckRpcConnErr(l.Logger, rpcErr)
-		err = response.ErrResp(1, errcode.Current, response.ServiceError)
+	if err != nil {
+		switch s, _ := status.FromError(err); s.Code() {
+		case codes.NotFound:
+			err = response.ErrResp(1, usercode.Current, response.NoneMatching, s.Message())
+		case codes.Aborted:
+			err = response.ErrResp(2, usercode.Current, response.InternalError, s.Message())
+		default:
+			l.Logger.Error(errors.Wrap(err, "user rpc call failed"))
+			err = response.ErrResp(3, usercode.Current, response.ServiceError, s.Message())
+		}
 		return
 	}
 
-	resp = &types.CurrentResp{Username: rpcResp.Username}
+	resp = &types.CurrentResp{Username: reply.Username}
 
 	return
 }

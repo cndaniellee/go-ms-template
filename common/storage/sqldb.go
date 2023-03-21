@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"github.com/zeromicro/go-zero/core/logx"
 	"goms/common/logtool"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -24,15 +25,11 @@ func NewSqlDb(conf SqlDbConf) *gorm.DB {
 			SingularTable: true,
 		},
 	})
-	if err != nil {
-		panic(err.Error())
-	}
+	logx.Must(err)
 
 	// 配置数据库参数
 	sqlDb, err := conn.DB()
-	if err != nil {
-		panic(err.Error())
-	}
+	logx.Must(err)
 	sqlDb.SetMaxOpenConns(conf.MaxOpenConns)
 	sqlDb.SetMaxIdleConns(conf.MaxIdleConns)
 	sqlDb.SetConnMaxIdleTime(time.Duration(conf.MaxIdleTime) * time.Minute)
@@ -40,6 +37,7 @@ func NewSqlDb(conf SqlDbConf) *gorm.DB {
 	// 配置Session
 	db := conn.Session(
 		&gorm.Session{
+			// 性能优化：select * -> select user,name
 			QueryFields: true,
 			PrepareStmt: true,
 			NewDB:       true,
