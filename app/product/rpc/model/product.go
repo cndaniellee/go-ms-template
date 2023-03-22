@@ -98,7 +98,7 @@ func (m *productModel) Delete(ctx context.Context, id int64) error {
 
 func (m *productModel) ListByIds(ctx context.Context, ids []int64) ([]*Product, error) {
 	var products []*Product
-	if err := m.DB.WithContext(ctx).Where("id in ?", ids).Find(products).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Where("id in ?", ids).Find(&products).Error; err != nil {
 		return nil, err
 	}
 	return products, nil

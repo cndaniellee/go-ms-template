@@ -23,7 +23,7 @@ type SubmitReq struct {
 type ListReq struct {
 	Status   int32 `form:"status,optional" validate:"gte=0,lte=4"`
 	Page     int32 `form:"page" validate:"gte=1"`
-	PageSize int32 `json:"pageSize" validate:"gte=5,lte=100"`
+	PageSize int32 `form:"pageSize" validate:"gte=5,lte=100"`
 }
 
 type ListItem struct {
@@ -40,7 +40,7 @@ type ListResp struct {
 }
 
 type IdReq struct {
-	ID int64 `json:"id" validate:"gte=1"`
+	ID int64 `form:"id" validate:"gte=1"`
 }
 
 type DetailResp struct {

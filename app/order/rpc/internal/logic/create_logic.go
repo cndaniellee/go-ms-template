@@ -5,15 +5,13 @@ import (
 	"database/sql"
 	"github.com/dtm-labs/client/dtmgrpc"
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/logx"
+	"goms/app/order/rpc/internal/svc"
 	"goms/app/order/rpc/model"
+	"goms/app/order/rpc/pb/order"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-
-	"goms/app/order/rpc/internal/svc"
-	"goms/app/order/rpc/pb/order"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CreateLogic struct {
@@ -71,20 +69,31 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 
 	// 在Barrier中执行事务
 	if err = barrier.CallWithDB(db, func(tx *sql.Tx) error {
-		query := l.svcCtx.SqlDB.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		// 这里用Gorm生成SQL
+		mainSql := l.svcCtx.SqlDB.ToSQL(func(tx *gorm.DB) *gorm.DB {
 			return tx.Create(o)
 		})
-		result, err := tx.Exec(query)
+		result, err := tx.Exec(mainSql)
 		if err != nil {
-			return err
+			return status.Error(codes.Internal, err.Error())
 		}
-		// 清除缓存
-		id, _ := result.LastInsertId()
-		l.svcCtx.OrderModel.RemoveCache(l.ctx, id)
+		orderId, err := result.LastInsertId()
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+		for _, product := range o.OrderProducts {
+			product.OrderID = orderId
+		}
+		subSql := l.svcCtx.SqlDB.ToSQL(func(tx *gorm.DB) *gorm.DB {
+			return tx.Create(o.OrderProducts)
+		})
+		if _, err = tx.Exec(subSql); err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
 		return nil
 	}); err != nil {
 		l.Logger.Error(errors.Wrap(err, "dtm tx execute failed"))
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 
 	return &order.Empty{}, nil

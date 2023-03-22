@@ -83,7 +83,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 		if err != nil {
 			cancel(err)
 		}
-		// 将获取到的产品信息会写
+		// 将获取到的产品信息回写
 		for i, product := range byIds.List {
 			products[i].Title = product.Title
 		}
@@ -97,7 +97,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 		writer.Write(listItem)
 	}, func(pipe <-chan types.ListItem, writer mr.Writer[[]types.ListItem], cancel func(error)) {
 		list := make([]types.ListItem, 0, len(reply.List))
-		for _, item := range list {
+		for item := range pipe {
 			list = append(list, item)
 		}
 		writer.Write(list)

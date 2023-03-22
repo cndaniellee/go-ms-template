@@ -54,7 +54,7 @@ func (l *DeductLogic) Deduct(in *product.DeductReq) (*product.Empty, error) {
 
 	// 在Barrier中执行事务
 	if err = barrier.CallWithDB(db, func(tx *sql.Tx) error {
-		result, err := tx.Exec("update product set stock = stock - ? where id = ? and stock >= ? and deleted_at is null", in.Amount, in.Id, in.Amount)
+		result, err := tx.Exec("UPDATE `product` SET `stock` = `stock` - ? WHERE `id` = ? AND `stock` >= ? AND `deleted_at` IS NULL", in.Amount, in.Id, in.Amount)
 		if err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}

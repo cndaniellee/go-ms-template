@@ -54,7 +54,7 @@ func (l *DeductRollbackLogic) DeductRollback(in *product.DeductReq) (*product.Em
 
 	// 在Barrier中执行事务
 	if err = barrier.CallWithDB(db, func(tx *sql.Tx) error {
-		result, err := tx.Exec("update product set stock = stock + ? where id = ? and deleted_at is null", in.Amount, in.Id)
+		result, err := tx.Exec("UPDATE `product` SET `stock` = `stock` + ? WHERE `id` = ? AND `deleted_at` IS NULL", in.Amount, in.Id)
 		if err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}

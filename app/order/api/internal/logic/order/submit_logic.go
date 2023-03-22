@@ -83,6 +83,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 				Id:     item.ID,
 				Amount: item.Amount,
 			})
+		ids[i] = item.ID
 		products[i] = &orderclient.Product{
 			Id:     item.ID,
 			Amount: item.Amount,

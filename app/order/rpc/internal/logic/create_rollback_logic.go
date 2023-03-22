@@ -43,14 +43,14 @@ func (l *CreateRollbackLogic) CreateRollback(in *order.CreateReq) (*order.Empty,
 
 	// 在Barrier中执行事务
 	if err = barrier.CallWithDB(db, func(tx *sql.Tx) error {
-		_, err = tx.Exec("delete from product where ref_no = ?", in.RefNo)
+		_, err = tx.Exec("DELETE FROM `product` WHERE `ref_no` = ?", in.RefNo)
 		if err != nil {
-			return err
+			return status.Error(codes.Internal, err.Error())
 		}
 		return nil
 	}); err != nil {
 		l.Logger.Error(errors.Wrap(err, "dtm tx execute failed"))
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 
 	return &order.Empty{}, nil
