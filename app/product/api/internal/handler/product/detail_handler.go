@@ -16,12 +16,7 @@ func DetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.IdReq
 		if err := httpx.Parse(r, &req); err != nil {
-			response.Write(w, response.ErrResp(-2, productcode.Detail, response.InvalidParam, err.Error()), nil)
-			return
-		}
-
-		if err := svcCtx.Validate.Struct(req); err != nil {
-			response.Write(w, response.ErrResp(-1, productcode.Detail, response.MissingParam, err.Error()), nil)
+			response.Write(w, response.ErrResp(0, productcode.Detail, response.InvalidParam, err.Error()), nil)
 			return
 		}
 

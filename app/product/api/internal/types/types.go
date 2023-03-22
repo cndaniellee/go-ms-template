@@ -10,10 +10,10 @@ type ListItem struct {
 }
 
 type ListReq struct {
-	Search   string `json:"search"`
-	Category int32  `json:"category" validate:"gte=0,lte=2"`
-	Page     int32  `json:"page" validate:"gte=1"`
-	PageSize int32  `json:"pageSize" validate:"gte=5,lte=100"`
+	Search   string `form:"search,optional"`
+	Category int32  `form:"category,optional" validate:"gte=0,lte=2"`
+	Page     int32  `form:"page" validate:"gte=1"`
+	PageSize int32  `form:"pageSize" validate:"gte=5,lte=100"`
 }
 
 type ListResp struct {
@@ -22,7 +22,7 @@ type ListResp struct {
 }
 
 type IdReq struct {
-	ID int64 `json:"id" validate:"gte=1"`
+	ID int64 `form:"id" validate:"gte=1"`
 }
 
 type DetailResp struct {
@@ -36,12 +36,12 @@ type DetailResp struct {
 }
 
 type EditReq struct {
-	ID          int64  `json:"id" validate:"gte=0"`
-	Title       string `json:"title" validate:"required"`
+	ID          int64  `json:"id,optional" validate:"gte=0"`
+	Title       string `json:"title"`
 	Category    int32  `json:"category" validate:"gte=1,lte=2"`
-	Stock       int64  `json:"stock" validate:"gte=0"`
-	Price       int64  `json:"price" validate:"gte=0"`
-	Description string `json:"description"`
+	Stock       int64  `json:"stock,optional" validate:"gte=0"`
+	Price       int64  `json:"price,optional" validate:"gte=0"`
+	Description string `json:"description,optional"`
 }
 
 type IdResp struct {

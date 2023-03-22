@@ -37,7 +37,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
-		err = response.ErrResp(0, ordercode.List, response.InternalError, err.Error())
+		err = response.ErrResp(1, ordercode.List, response.InternalError, err.Error())
 		return
 	}
 
@@ -49,12 +49,12 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.NotFound:
-			err = response.ErrResp(0, ordercode.Detail, response.NoneMatching, s.Message())
+			err = response.ErrResp(2, ordercode.Detail, response.NoneMatching, s.Message())
 		case codes.Aborted:
-			err = response.ErrResp(1, ordercode.Detail, response.InternalError, s.Message())
+			err = response.ErrResp(3, ordercode.Detail, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "order rpc call failed"))
-			err = response.ErrResp(2, ordercode.Detail, response.ServiceError, s.Message())
+			err = response.ErrResp(4, ordercode.Detail, response.ServiceError, s.Message())
 		}
 		return
 	}
@@ -77,10 +77,10 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.Aborted:
-			err = response.ErrResp(3, ordercode.Detail, response.InternalError, s.Message())
+			err = response.ErrResp(5, ordercode.Detail, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(4, ordercode.Detail, response.ServiceError, s.Message())
+			err = response.ErrResp(6, ordercode.Detail, response.ServiceError, s.Message())
 		}
 		return
 	}

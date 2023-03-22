@@ -14,15 +14,15 @@ type ProductsResp struct {
 }
 
 type SubmitReq struct {
-	Products  []ProductsReq `json:"products" validate:"required"`
-	Consignee string        `json:"consignee" validate:"required"`
-	Phone     string        `json:"phone" validate:"required"`
-	Address   string        `json:"address" validate:"required"`
+	Products  []ProductsReq `json:"products"`
+	Consignee string        `json:"consignee"`
+	Phone     string        `json:"phone"`
+	Address   string        `json:"address"`
 }
 
 type ListReq struct {
-	Status   int32 `json:"status" validate:"gte=0,lte=4"`
-	Page     int32 `json:"page" validate:"gte=1"`
+	Status   int32 `form:"status,optional" validate:"gte=0,lte=4"`
+	Page     int32 `form:"page" validate:"gte=1"`
 	PageSize int32 `json:"pageSize" validate:"gte=5,lte=100"`
 }
 
@@ -57,7 +57,7 @@ type DetailResp struct {
 
 type PaymentReq struct {
 	ID       int64  `json:"id" validate:"gte=1"`
-	Platform string `json:"platform" validate:"required"`
+	Platform string `json:"platform"`
 }
 
 type PaymentResp struct {

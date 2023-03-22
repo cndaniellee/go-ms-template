@@ -41,10 +41,10 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.Aborted:
-			err = response.ErrResp(0, productcode.List, response.InternalError, s.Message())
+			err = response.ErrResp(1, productcode.List, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(1, productcode.List, response.ServiceError, s.Message())
+			err = response.ErrResp(2, productcode.List, response.ServiceError, s.Message())
 		}
 		return
 	}

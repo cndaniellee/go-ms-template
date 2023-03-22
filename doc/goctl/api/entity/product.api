@@ -20,11 +20,11 @@ type (
     }
 
     ListReq {
-        Search   string `json:"search"`
-        Category int32  `json:"category" validate:"gte=0,lte=2"`
+        Search   string `form:"search,optional"`
+        Category int32  `form:"category,optional" validate:"gte=0,lte=2"`
 
-        Page int32 `json:"page" validate:"gte=1"`
-        PageSize int32 `json:"pageSize" validate:"gte=5,lte=100"`
+        Page int32 `form:"page" validate:"gte=1"`
+        PageSize int32 `form:"pageSize" validate:"gte=5,lte=100"`
     }
 
     ListResp {
@@ -35,7 +35,7 @@ type (
 
 type (
     IdReq {
-        ID int64 `json:"id" validate:"gte=1"`
+        ID int64 `form:"id" validate:"gte=1"`
     }
 
     DetailResp {
@@ -49,12 +49,12 @@ type (
     }
 
     EditReq {
-        ID          int64   `json:"id" validate:"gte=0"`
-        Title       string  `json:"title" validate:"required"`
+        ID          int64   `json:"id,optional" validate:"gte=0"`
+        Title       string  `json:"title"`
         Category    int32   `json:"category" validate:"gte=1,lte=2"`
-        Stock       int64   `json:"stock" validate:"gte=0"`
-        Price       int64   `json:"price" validate:"gte=0"`
-        Description string  `json:"description"`
+        Stock       int64   `json:"stock,optional" validate:"gte=0"`
+        Price       int64   `json:"price,optional" validate:"gte=0"`
+        Description string  `json:"description,optional"`
     }
 
     IdResp {

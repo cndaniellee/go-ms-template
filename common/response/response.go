@@ -36,9 +36,9 @@ func Write(w http.ResponseWriter, err error, data any) {
 	httpx.OkJson(w, body)
 }
 
-// ErrResp Logic内返回错误码从2开始，Handle占前两个位置
+// ErrResp Logic内返回错误码从1开始，0为参数错误
 func ErrResp(pos, baseCode int, msg ErrMsg, note string) (resp Response) {
-	resp.Code = baseCode + pos + 2
+	resp.Code = baseCode + pos
 	resp.Msg = msg
 	resp.Data = note
 	return

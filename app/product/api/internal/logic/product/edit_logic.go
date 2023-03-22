@@ -43,10 +43,10 @@ func (l *EditLogic) Edit(req *types.EditReq) (resp *types.IdResp, err error) {
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.Aborted:
-			err = response.ErrResp(0, productcode.Edit, response.InternalError, s.Message())
+			err = response.ErrResp(1, productcode.Edit, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(1, productcode.Edit, response.ServiceError, s.Message())
+			err = response.ErrResp(2, productcode.Edit, response.ServiceError, s.Message())
 		}
 		return
 	}

@@ -45,7 +45,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
-		err = response.ErrResp(0, usercode.Register, response.InternalError, err.Error())
+		err = response.ErrResp(1, usercode.Register, response.InternalError, err.Error())
 		return
 	}
 
@@ -53,13 +53,13 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	orderRpc, err := l.svcCtx.Config.OrderRpcConf.BuildTarget()
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "order rpc build failed"))
-		err = response.ErrResp(1, ordercode.Submit, response.InternalError, err.Error())
+		err = response.ErrResp(2, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
 	productRpc, err := l.svcCtx.Config.ProductRpcConf.BuildTarget()
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "product rpc build failed"))
-		err = response.ErrResp(2, ordercode.Submit, response.InternalError, err.Error())
+		err = response.ErrResp(3, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
 
@@ -67,7 +67,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	reply, err := l.svcCtx.DtmClient.NewGid(l.ctx, &emptypb.Empty{})
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "dtm gid fetch failed"))
-		err = response.ErrResp(3, ordercode.Submit, response.InternalError, err.Error())
+		err = response.ErrResp(4, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
 	saga := dtmgrpc.NewSagaGrpc(l.svcCtx.Config.DtmService, reply.Gid)
@@ -96,10 +96,10 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.Aborted:
-			err = response.ErrResp(4, ordercode.Submit, response.InternalError, s.Message())
+			err = response.ErrResp(5, ordercode.Submit, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(5, ordercode.Submit, response.ServiceError, s.Message())
+			err = response.ErrResp(6, ordercode.Submit, response.ServiceError, s.Message())
 		}
 		return
 	}
@@ -125,7 +125,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	// 提交Saga事务
 	if err = saga.Submit(); err != nil {
 		l.Logger.Error(errors.Wrap(err, "dtm saga submit failed"))
-		err = response.ErrResp(6, ordercode.Submit, response.InternalError, err.Error())
+		err = response.ErrResp(7, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
 

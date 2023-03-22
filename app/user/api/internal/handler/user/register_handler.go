@@ -16,12 +16,7 @@ func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AuthReq
 		if err := httpx.Parse(r, &req); err != nil {
-			response.Write(w, response.ErrResp(-2, usercode.Register, response.InvalidParam, err.Error()), nil)
-			return
-		}
-
-		if err := svcCtx.Validate.Struct(req); err != nil {
-			response.Write(w, response.ErrResp(-1, usercode.Register, response.MissingParam, err.Error()), nil)
+			response.Write(w, response.ErrResp(0, usercode.Register, response.InvalidParam, err.Error()), nil)
 			return
 		}
 

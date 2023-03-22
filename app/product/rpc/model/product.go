@@ -3,8 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"goms/common/model"
 	"gorm.io/gorm"
@@ -66,33 +64,14 @@ func (m *productModel) List(ctx context.Context, search string, category Product
 
 func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error) {
 	cacheKey := fmt.Sprintf(model.IdCacheKey, m.Table, id)
-	result, err := m.SF.Do(cacheKey, func() (any, error) {
-		product := &Product{}
-		// 读取缓存
-		if err := m.Cache.GetCtx(ctx, cacheKey, product); err == nil {
-			return product, nil
-		}
-		// 查询数据
-		if err := m.DB.WithContext(ctx).Where("id = ?", id).First(product).Error; err != nil {
-			// 无数据写入占位符
-			if err == gorm.ErrRecordNotFound {
-				err = m.Cache.SetCtx(ctx, cacheKey, "*")
-				if err != nil {
-					logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
-				}
-			}
-			return nil, err
-		}
-		// 写入缓存，缓存错误不影响业务
-		if err := m.Cache.SetCtx(ctx, cacheKey, product); err != nil {
-			logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
-		}
-		return product, nil
-	})
-	if err != nil {
+	product := &Product{}
+	// 读取缓存或查询数据库
+	if err := m.Cache.TakeCtx(ctx, product, cacheKey, func(val any) error {
+		return m.DB.WithContext(ctx).Where("id = ?", id).First(val).Error
+	}); err != nil {
 		return nil, err
 	}
-	return result.(*Product), nil
+	return product, nil
 }
 
 func (m *productModel) Upsert(ctx context.Context, product *Product) error {
@@ -105,7 +84,7 @@ func (m *productModel) Upsert(ctx context.Context, product *Product) error {
 			return err
 		}
 	}
-	m.RemoveCache(ctx, product.ID)
+	m.RemoveCache(product.ID)
 	return nil
 }
 
@@ -113,7 +92,7 @@ func (m *productModel) Delete(ctx context.Context, id int64) error {
 	if err := m.DB.WithContext(ctx).Delete(&Product{}, "id = ?", id).Error; err != nil {
 		return err
 	}
-	m.RemoveCache(ctx, id)
+	m.RemoveCache(id)
 	return nil
 }
 

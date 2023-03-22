@@ -16,12 +16,7 @@ func PaymentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.PaymentReq
 		if err := httpx.Parse(r, &req); err != nil {
-			response.Write(w, response.ErrResp(-2, ordercode.Payment, response.InvalidParam, err.Error()), nil)
-			return
-		}
-
-		if err := svcCtx.Validate.Struct(req); err != nil {
-			response.Write(w, response.ErrResp(-1, ordercode.Payment, response.MissingParam, err.Error()), nil)
+			response.Write(w, response.ErrResp(0, ordercode.Payment, response.InvalidParam, err.Error()), nil)
 			return
 		}
 

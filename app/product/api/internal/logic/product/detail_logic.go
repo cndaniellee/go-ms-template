@@ -38,12 +38,12 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.NotFound:
-			err = response.ErrResp(0, productcode.Detail, response.NoneMatching, s.Message())
+			err = response.ErrResp(1, productcode.Detail, response.NoneMatching, s.Message())
 		case codes.Aborted:
-			err = response.ErrResp(1, productcode.Detail, response.InternalError, s.Message())
+			err = response.ErrResp(2, productcode.Detail, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(2, productcode.Detail, response.ServiceError, s.Message())
+			err = response.ErrResp(3, productcode.Detail, response.ServiceError, s.Message())
 		}
 		return
 	}

@@ -23,7 +23,7 @@ func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} 
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	// todo: add your logic here and delete this line
 
-    err = response.ErrResp(0, {{.pkgName}}code.{{.function}}, response.InternalError, "example")
+    err = response.ErrResp(1, {{.pkgName}}code.{{.function}}, response.InternalError, "example")
 
 	{{.returnString}}
 }

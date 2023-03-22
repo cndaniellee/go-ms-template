@@ -13,9 +13,8 @@ const (
 	// 未定义的错误
 	UnknownError ErrMsg = "UNKNOWN_ERROR"
 
-	// 参数解析、校验处使用的错误
+	// 参数解析使用的错误
 	InvalidParam ErrMsg = "INVALID_PARAM"
-	MissingParam ErrMsg = "MISSING_PARAM"
 
 	// 用于本服务和依赖服务出现的已知错误
 	InternalError ErrMsg = "INTERNAL_ERROR"

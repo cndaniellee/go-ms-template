@@ -38,10 +38,10 @@ func (l *RemoveLogic) Remove(req *types.IdReq) (err error) {
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.Aborted:
-			err = response.ErrResp(0, productcode.Remove, response.InternalError, s.Message())
+			err = response.ErrResp(1, productcode.Remove, response.InternalError, s.Message())
 		default:
 			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
-			err = response.ErrResp(1, productcode.Remove, response.ServiceError, s.Message())
+			err = response.ErrResp(2, productcode.Remove, response.ServiceError, s.Message())
 		}
 		return
 	}

@@ -2,8 +2,8 @@
 package types
 
 type AuthReq struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type AuthResp struct {

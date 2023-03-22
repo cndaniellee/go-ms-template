@@ -2,19 +2,21 @@ package svc
 
 import (
 	{{.configImport}}
-	"gopkg.in/go-playground/validator.v9"
+    "goms/common/validator"
 )
 
 type ServiceContext struct {
 	Config {{.config}}
-	Validate *validator.Validate
 	{{.middleware}}
 }
 
 func NewServiceContext(c {{.config}}) *ServiceContext {
+
+    // 设置V9校验
+    httpx.SetValidator(validator.NewV9())
+
 	return &ServiceContext{
 		Config: c,
-		Validate: validator.New(),
 		{{.middlewareAssignment}}
 	}
 }
