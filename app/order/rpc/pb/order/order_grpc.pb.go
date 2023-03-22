@@ -19,18 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Order_Submit_FullMethodName = "/order.order/Submit"
-	Order_List_FullMethodName   = "/order.order/List"
-	Order_Detail_FullMethodName = "/order.order/Detail"
+	Order_List_FullMethodName           = "/order.order/List"
+	Order_Detail_FullMethodName         = "/order.order/Detail"
+	Order_Create_FullMethodName         = "/order.order/Create"
+	Order_CreateRollback_FullMethodName = "/order.order/CreateRollback"
 )
 
 // OrderClient is the client API for Order service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderClient interface {
-	Submit(ctx context.Context, in *SubmitReq, opts ...grpc.CallOption) (*Empty, error)
 	List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error)
 	Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
+	// DTM
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
+	CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type orderClient struct {
@@ -39,15 +42,6 @@ type orderClient struct {
 
 func NewOrderClient(cc grpc.ClientConnInterface) OrderClient {
 	return &orderClient{cc}
-}
-
-func (c *orderClient) Submit(ctx context.Context, in *SubmitReq, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, Order_Submit_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *orderClient) List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error) {
@@ -68,13 +62,33 @@ func (c *orderClient) Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOp
 	return out, nil
 }
 
+func (c *orderClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Order_Create_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Order_CreateRollback_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility
 type OrderServer interface {
-	Submit(context.Context, *SubmitReq) (*Empty, error)
 	List(context.Context, *ListReq) (*ListReply, error)
 	Detail(context.Context, *IdReq) (*DetailReply, error)
+	// DTM
+	Create(context.Context, *CreateReq) (*Empty, error)
+	CreateRollback(context.Context, *CreateReq) (*Empty, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -82,14 +96,17 @@ type OrderServer interface {
 type UnimplementedOrderServer struct {
 }
 
-func (UnimplementedOrderServer) Submit(context.Context, *SubmitReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Submit not implemented")
-}
 func (UnimplementedOrderServer) List(context.Context, *ListReq) (*ListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedOrderServer) Detail(context.Context, *IdReq) (*DetailReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Detail not implemented")
+}
+func (UnimplementedOrderServer) Create(context.Context, *CreateReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedOrderServer) CreateRollback(context.Context, *CreateReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRollback not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 
@@ -102,24 +119,6 @@ type UnsafeOrderServer interface {
 
 func RegisterOrderServer(s grpc.ServiceRegistrar, srv OrderServer) {
 	s.RegisterService(&Order_ServiceDesc, srv)
-}
-
-func _Order_Submit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubmitReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrderServer).Submit(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Order_Submit_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Submit(ctx, req.(*SubmitReq))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Order_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -158,6 +157,42 @@ func _Order_Detail_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_Create_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).Create(ctx, req.(*CreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_CreateRollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreateRollback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreateRollback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreateRollback(ctx, req.(*CreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,16 +201,20 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Submit",
-			Handler:    _Order_Submit_Handler,
-		},
-		{
 			MethodName: "List",
 			Handler:    _Order_List_Handler,
 		},
 		{
 			MethodName: "Detail",
 			Handler:    _Order_Detail_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _Order_Create_Handler,
+		},
+		{
+			MethodName: "CreateRollback",
+			Handler:    _Order_CreateRollback_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

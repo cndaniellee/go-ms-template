@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	CreateReq   = order.CreateReq
 	DetailReply = order.DetailReply
 	Empty       = order.Empty
 	IdReq       = order.IdReq
@@ -21,12 +22,13 @@ type (
 	ListReq     = order.ListReq
 	Page        = order.Page
 	Product     = order.Product
-	SubmitReq   = order.SubmitReq
 
 	Order interface {
-		Submit(ctx context.Context, in *SubmitReq, opts ...grpc.CallOption) (*Empty, error)
 		List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error)
 		Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
+		// DTM
+		Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
+		CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultOrder struct {
@@ -40,11 +42,6 @@ func NewOrder(cli zrpc.Client) Order {
 	}
 }
 
-func (m *defaultOrder) Submit(ctx context.Context, in *SubmitReq, opts ...grpc.CallOption) (*Empty, error) {
-	client := order.NewOrderClient(m.cli.Conn())
-	return client.Submit(ctx, in, opts...)
-}
-
 func (m *defaultOrder) List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.List(ctx, in, opts...)
@@ -53,4 +50,15 @@ func (m *defaultOrder) List(ctx context.Context, in *ListReq, opts ...grpc.CallO
 func (m *defaultOrder) Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.Detail(ctx, in, opts...)
+}
+
+// DTM
+func (m *defaultOrder) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.Create(ctx, in, opts...)
+}
+
+func (m *defaultOrder) CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CreateRollback(ctx, in, opts...)
 }

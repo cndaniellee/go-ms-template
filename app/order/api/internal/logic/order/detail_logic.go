@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"goms/app/order/rpc/orderclient"
 	"goms/app/product/rpc/productclient"
+	"goms/common/request"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -32,9 +33,18 @@ func NewDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DetailLogi
 
 func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err error) {
 
+	// 解析用户ID
+	userId, err := request.ParseUserId(l.ctx)
+	if err != nil {
+		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
+		err = response.ErrResp(0, ordercode.List, response.InternalError, err.Error())
+		return
+	}
+
 	// 调用RPC服务
 	reply, err := l.svcCtx.OrderRpc.Detail(l.ctx, &orderclient.IdReq{
-		Id: req.ID,
+		Id:     req.ID,
+		UserId: userId,
 	})
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {

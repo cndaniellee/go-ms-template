@@ -22,11 +22,6 @@ func NewOrderServer(svcCtx *svc.ServiceContext) *OrderServer {
 	}
 }
 
-func (s *OrderServer) Submit(ctx context.Context, in *order.SubmitReq) (*order.Empty, error) {
-	l := logic.NewSubmitLogic(ctx, s.svcCtx)
-	return l.Submit(in)
-}
-
 func (s *OrderServer) List(ctx context.Context, in *order.ListReq) (*order.ListReply, error) {
 	l := logic.NewListLogic(ctx, s.svcCtx)
 	return l.List(in)
@@ -35,4 +30,15 @@ func (s *OrderServer) List(ctx context.Context, in *order.ListReq) (*order.ListR
 func (s *OrderServer) Detail(ctx context.Context, in *order.IdReq) (*order.DetailReply, error) {
 	l := logic.NewDetailLogic(ctx, s.svcCtx)
 	return l.Detail(in)
+}
+
+// DTM
+func (s *OrderServer) Create(ctx context.Context, in *order.CreateReq) (*order.Empty, error) {
+	l := logic.NewCreateLogic(ctx, s.svcCtx)
+	return l.Create(in)
+}
+
+func (s *OrderServer) CreateRollback(ctx context.Context, in *order.CreateReq) (*order.Empty, error) {
+	l := logic.NewCreateRollbackLogic(ctx, s.svcCtx)
+	return l.CreateRollback(in)
 }

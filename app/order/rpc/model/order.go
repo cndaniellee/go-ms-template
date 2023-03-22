@@ -2,15 +2,9 @@ package model
 
 import (
 	"context"
-	"fmt"
-	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/syncx"
 	"goms/common/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type OrderStatus int32
@@ -24,6 +18,8 @@ const (
 
 type Order struct {
 	model.Model
+	UserID      int64       `gorm:"comment:'用户ID'"`
+	RefNo       string      `gorm:"type:varchar(32);comment:参考号;uniqueIndex"`
 	Status      OrderStatus `gorm:"type:tinyint(1);comment:状态"`
 	Consignee   string      `gorm:"type:varchar(128);comment:收件人"`
 	Phone       string      `gorm:"type:varchar(32);comment:手机号"`
@@ -36,30 +32,26 @@ type Order struct {
 
 type (
 	OrderModel interface {
-		List(ctx context.Context, status OrderStatus, page, pageSize int) ([]*Order, int64, error)
-		FindById(ctx context.Context, id int64) (*Order, error)
+		model.IBaseModel
+		List(ctx context.Context, userId int64, status OrderStatus, page, pageSize int) ([]*Order, int64, error)
+		FindById(ctx context.Context, userId, id int64) (*Order, error)
 
-		Create(ctx context.Context, user *Order) error
 		UpdateStatus(ctx context.Context, id int64, status OrderStatus) error
 	}
 
 	orderModel struct {
-		db    *gorm.DB
-		cache cache.Cache
-		sf    syncx.SingleFlight
-		table string
+		*model.BaseModel
 	}
 )
 
 func NewOrderModel(db *gorm.DB, r *redis.Redis) OrderModel {
-	c := cache.NewNode(r, syncx.NewSingleFlight(), cache.NewStat("user"), gorm.ErrRecordNotFound, cache.WithExpiry(time.Hour), cache.WithNotFoundExpiry(time.Hour))
-	return &orderModel{db: db, cache: c, sf: syncx.NewSingleFlight(), table: "order"}
+	return &orderModel{BaseModel: model.NewBaseModel(db, r, "order")}
 }
 
-func (m *orderModel) List(ctx context.Context, status OrderStatus, page, pageSize int) ([]*Order, int64, error) {
+func (m *orderModel) List(ctx context.Context, userId int64, status OrderStatus, page, pageSize int) ([]*Order, int64, error) {
 	var total int64
 	var orders []*Order
-	session := m.db.WithContext(ctx).Model(&Order{}).Preload("OrderProducts")
+	session := m.DB.WithContext(ctx).Model(&Order{}).Where("user_id = ?", userId).Preload("OrderProducts")
 	if status != 0 {
 		session.Where("status = ?", status)
 	}
@@ -70,57 +62,18 @@ func (m *orderModel) List(ctx context.Context, status OrderStatus, page, pageSiz
 	return orders, total, nil
 }
 
-func (m *orderModel) FindById(ctx context.Context, id int64) (*Order, error) {
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	result, err := m.sf.Do(cacheKey, func() (any, error) {
-		order := &Order{}
-		// 读取缓存
-		if err := m.cache.GetCtx(ctx, cacheKey, order); err == nil {
-			return order, nil
-		}
-		// 查询数据
-		if err := m.db.WithContext(ctx).Where("id = ?", id).First(order).Error; err != nil {
-			// 无数据写入占位符
-			if err == gorm.ErrRecordNotFound {
-				err = m.cache.SetCtx(ctx, cacheKey, "*")
-				if err != nil {
-					logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
-				}
-			}
-			return nil, err
-		}
-		// 写入缓存，缓存错误不影响业务
-		if err := m.cache.SetCtx(ctx, cacheKey, order); err != nil {
-			logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
-		}
-		return order, nil
-	})
-	if err != nil {
+func (m *orderModel) FindById(ctx context.Context, userId, id int64) (*Order, error) {
+	order := &Order{}
+	// 查询数据
+	if err := m.DB.WithContext(ctx).Where("user_id = ? and id = ?", userId, id).First(order).Error; err != nil {
 		return nil, err
 	}
-	return result.(*Order), nil
-}
-
-func (m *orderModel) Create(ctx context.Context, order *Order) error {
-	if err := m.db.WithContext(ctx).Create(order).Error; err != nil {
-		return err
-	}
-	// 删除缓存，缓存错误不影响业务
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, order.ID)
-	if err := m.cache.DelCtx(ctx, cacheKey); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
-	}
-	return nil
+	return order, nil
 }
 
 func (m *orderModel) UpdateStatus(ctx context.Context, id int64, status OrderStatus) error {
-	if err := m.db.WithContext(ctx).Model(&Order{}).Where("id = ?", id).Update("status", status).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Model(&Order{}).Where("id = ?", id).Update("status", status).Error; err != nil {
 		return err
-	}
-	// 删除缓存，缓存错误不影响业务
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	if err := m.cache.DelCtx(ctx, cacheKey); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
 	}
 	return nil
 }

@@ -21,3 +21,5 @@ ProductRpcConf:
       - goms_etcd:2379
     Key: product-rpc
   NonBlock: true
+
+DtmService: etcd://goms_etcd:2379/dtmservice

@@ -73,6 +73,12 @@ message ListByIdsReply {
     repeated ListItem list = 1;
 }
 
+// DTM
+message DeductReq {
+    int64 id = 1;
+    int64 amount = 2;
+}
+
 service product {
     rpc List(ListReq) returns(ListReply);
 
@@ -84,4 +90,9 @@ service product {
 
     // Internal
     rpc ListByIds(ListByIdsReq) returns(ListByIdsReply);
+
+    // DTM
+    rpc Deduct(DeductReq) returns(Empty);
+
+    rpc DeductRollback(DeductReq) returns(Empty);
 }

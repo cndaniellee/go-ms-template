@@ -7,10 +7,14 @@ import (
 	"goms/app/order/rpc/internal/config"
 	"goms/app/order/rpc/model"
 	"goms/common/storage"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
 	Config config.Config
+
+	SqlDB *gorm.DB
+	Redis *redis.Redis
 
 	OrderModel model.OrderModel
 }
@@ -18,10 +22,10 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 
 	// 初始化数据库，使用Gorm
-	sqlDb := storage.NewSqlDb(c.SqlDB)
+	db := storage.NewSqlDb(c.SqlDB)
 	if c.Mode == service.DevMode || c.Mode == service.TestMode {
-		sqlDb.Debug()
-		logx.Must(sqlDb.AutoMigrate(&model.Order{}, &model.OrderProduct{}))
+		db.Debug()
+		logx.Must(db.AutoMigrate(&model.Order{}, &model.OrderProduct{}))
 	}
 
 	// 初始化缓存
@@ -31,6 +35,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		OrderModel: model.NewOrderModel(sqlDb, rds),
+		SqlDB: db,
+		Redis: rds,
+
+		OrderModel: model.NewOrderModel(db, rds),
 	}
 }

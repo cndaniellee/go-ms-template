@@ -47,3 +47,14 @@ func (s *ProductServer) ListByIds(ctx context.Context, in *product.ListByIdsReq)
 	l := logic.NewListByIdsLogic(ctx, s.svcCtx)
 	return l.ListByIds(in)
 }
+
+// DTM
+func (s *ProductServer) Deduct(ctx context.Context, in *product.DeductReq) (*product.Empty, error) {
+	l := logic.NewDeductLogic(ctx, s.svcCtx)
+	return l.Deduct(in)
+}
+
+func (s *ProductServer) DeductRollback(ctx context.Context, in *product.DeductReq) (*product.Empty, error) {
+	l := logic.NewDeductRollbackLogic(ctx, s.svcCtx)
+	return l.DeductRollback(in)
+}

@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	DeductReq      = product.DeductReq
 	DetailReply    = product.DetailReply
 	EditReq        = product.EditReq
 	Empty          = product.Empty
@@ -32,6 +33,9 @@ type (
 		Remove(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
 		// Internal
 		ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error)
+		// DTM
+		Deduct(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error)
+		DeductRollback(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultProduct struct {
@@ -69,4 +73,15 @@ func (m *defaultProduct) Remove(ctx context.Context, in *IdReq, opts ...grpc.Cal
 func (m *defaultProduct) ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ListByIds(ctx, in, opts...)
+}
+
+// DTM
+func (m *defaultProduct) Deduct(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.Deduct(ctx, in, opts...)
+}
+
+func (m *defaultProduct) DeductRollback(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.DeductRollback(ctx, in, opts...)
 }

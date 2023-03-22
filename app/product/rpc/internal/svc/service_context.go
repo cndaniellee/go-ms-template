@@ -7,10 +7,14 @@ import (
 	"goms/app/product/rpc/internal/config"
 	"goms/app/product/rpc/model"
 	"goms/common/storage"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
 	Config config.Config
+
+	SqlDB *gorm.DB
+	Redis *redis.Redis
 
 	ProductModel model.ProductModel
 }
@@ -18,10 +22,10 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 
 	// 初始化数据库，使用Gorm
-	sqlDb := storage.NewSqlDb(c.SqlDB)
+	db := storage.NewSqlDb(c.SqlDB)
 	if c.Mode == service.DevMode || c.Mode == service.TestMode {
-		sqlDb.Debug()
-		logx.Must(sqlDb.AutoMigrate(&model.Product{}))
+		db.Debug()
+		logx.Must(db.AutoMigrate(&model.Product{}))
 	}
 
 	// 初始化缓存
@@ -31,6 +35,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		ProductModel: model.NewProductModel(sqlDb, rds),
+		SqlDB: db,
+		Redis: rds,
+
+		ProductModel: model.NewProductModel(db, rds),
 	}
 }

@@ -19,11 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Product_List_FullMethodName      = "/product.product/List"
-	Product_Detail_FullMethodName    = "/product.product/Detail"
-	Product_Edit_FullMethodName      = "/product.product/Edit"
-	Product_Remove_FullMethodName    = "/product.product/Remove"
-	Product_ListByIds_FullMethodName = "/product.product/ListByIds"
+	Product_List_FullMethodName           = "/product.product/List"
+	Product_Detail_FullMethodName         = "/product.product/Detail"
+	Product_Edit_FullMethodName           = "/product.product/Edit"
+	Product_Remove_FullMethodName         = "/product.product/Remove"
+	Product_ListByIds_FullMethodName      = "/product.product/ListByIds"
+	Product_Deduct_FullMethodName         = "/product.product/Deduct"
+	Product_DeductRollback_FullMethodName = "/product.product/DeductRollback"
 )
 
 // ProductClient is the client API for Product service.
@@ -36,6 +38,9 @@ type ProductClient interface {
 	Remove(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
 	// Internal
 	ListByIds(ctx context.Context, in *ListByIdsReq, opts ...grpc.CallOption) (*ListByIdsReply, error)
+	// DTM
+	Deduct(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error)
+	DeductRollback(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type productClient struct {
@@ -91,6 +96,24 @@ func (c *productClient) ListByIds(ctx context.Context, in *ListByIdsReq, opts ..
 	return out, nil
 }
 
+func (c *productClient) Deduct(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Product_Deduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) DeductRollback(ctx context.Context, in *DeductReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Product_DeductRollback_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility
@@ -101,6 +124,9 @@ type ProductServer interface {
 	Remove(context.Context, *IdReq) (*Empty, error)
 	// Internal
 	ListByIds(context.Context, *ListByIdsReq) (*ListByIdsReply, error)
+	// DTM
+	Deduct(context.Context, *DeductReq) (*Empty, error)
+	DeductRollback(context.Context, *DeductReq) (*Empty, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -122,6 +148,12 @@ func (UnimplementedProductServer) Remove(context.Context, *IdReq) (*Empty, error
 }
 func (UnimplementedProductServer) ListByIds(context.Context, *ListByIdsReq) (*ListByIdsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListByIds not implemented")
+}
+func (UnimplementedProductServer) Deduct(context.Context, *DeductReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Deduct not implemented")
+}
+func (UnimplementedProductServer) DeductRollback(context.Context, *DeductReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeductRollback not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 
@@ -226,6 +258,42 @@ func _Product_ListByIds_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_Deduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeductReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).Deduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_Deduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).Deduct(ctx, req.(*DeductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_DeductRollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeductReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).DeductRollback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_DeductRollback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).DeductRollback(ctx, req.(*DeductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -252,6 +320,14 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListByIds",
 			Handler:    _Product_ListByIds_Handler,
+		},
+		{
+			MethodName: "Deduct",
+			Handler:    _Product_Deduct_Handler,
+		},
+		{
+			MethodName: "DeductRollback",
+			Handler:    _Product_DeductRollback_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/syncx"
 	"goms/common/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -21,6 +18,7 @@ type User struct {
 
 type (
 	UserModel interface {
+		model.IBaseModel
 		FindByUsername(ctx context.Context, username string) (*User, error)
 		FindById(ctx context.Context, id int64) (*User, error)
 
@@ -28,47 +26,43 @@ type (
 	}
 
 	userModel struct {
-		db    *gorm.DB
-		cache cache.Cache
-		sf    syncx.SingleFlight
-		table string
+		*model.BaseModel
 	}
 )
 
 func NewUserModel(db *gorm.DB, r *redis.Redis) UserModel {
-	c := cache.NewNode(r, syncx.NewSingleFlight(), cache.NewStat("user"), gorm.ErrRecordNotFound, cache.WithExpiry(time.Hour), cache.WithNotFoundExpiry(time.Hour))
-	return &userModel{db: db, cache: c, sf: syncx.NewSingleFlight(), table: "user"}
+	return &userModel{BaseModel: model.NewBaseModel(db, r, "user")}
 }
 
 func (m *userModel) FindByUsername(ctx context.Context, username string) (*User, error) {
 	user := &User{}
-	if err := m.db.WithContext(ctx).Where("username = ?", username).First(user).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Where("username = ?", username).First(user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
 func (m *userModel) FindById(ctx context.Context, id int64) (*User, error) {
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	result, err := m.sf.Do(cacheKey, func() (any, error) {
+	cacheKey := fmt.Sprintf(model.IdCacheKey, m.Table, id)
+	result, err := m.SF.Do(cacheKey, func() (any, error) {
 		user := &User{}
 		// 读取缓存
-		if err := m.cache.GetCtx(ctx, cacheKey, user); err == nil {
+		if err := m.Cache.GetCtx(ctx, cacheKey, user); err == nil {
 			return user, nil
 		}
 		// 查询数据
-		if err := m.db.WithContext(ctx).Where("id = ?", id).First(user).Error; err != nil {
+		if err := m.DB.WithContext(ctx).Where("id = ?", id).First(user).Error; err != nil {
 			// 无数据写入占位符
 			if err == gorm.ErrRecordNotFound {
-				if err = m.cache.SetCtx(ctx, cacheKey, "*"); err != nil {
-					logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
+				if err = m.Cache.SetCtx(ctx, cacheKey, "*"); err != nil {
+					logx.WithContext(ctx).Error(errors.Wrap(err, "Cache placeholder failed"))
 				}
 			}
 			return nil, err
 		}
 		// 写入缓存，缓存错误不影响业务
-		if err := m.cache.SetCtx(ctx, cacheKey, user); err != nil {
-			logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
+		if err := m.Cache.SetCtx(ctx, cacheKey, user); err != nil {
+			logx.WithContext(ctx).Error(errors.Wrap(err, "Cache data failed"))
 		}
 		return user, nil
 	})
@@ -79,13 +73,9 @@ func (m *userModel) FindById(ctx context.Context, id int64) (*User, error) {
 }
 
 func (m *userModel) Create(ctx context.Context, user *User) error {
-	if err := m.db.WithContext(ctx).Create(user).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Create(user).Error; err != nil {
 		return err
 	}
-	// 删除缓存，缓存错误不影响业务
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, user.ID)
-	if err := m.cache.DelCtx(ctx, cacheKey); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
-	}
+	m.RemoveCache(ctx, user.ID)
 	return nil
 }

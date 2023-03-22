@@ -13,4 +13,6 @@ type Config struct {
 
 	OrderRpcConf   zrpc.RpcClientConf
 	ProductRpcConf zrpc.RpcClientConf
+
+	DtmService string
 }

@@ -25,6 +25,28 @@ services:
     networks:
       - goms_net
 
+  #DTM分布式事务
+  dtm:
+    image: yedf/dtm:latest
+    container_name: goms_dtm
+    ports:
+      - 36789:36789
+      - 36790:36790
+    environment:
+      TZ: Asia/Shanghai
+      STORE_DRIVER: mysql
+      STORE_HOST: goms_mysql
+      STORE_USER: root
+      STORE_PASSWORD: 840f98f283c7e914f98a87c3f30b3f2f
+      STORE_PORT: 3306
+      MICRO_SERVICE_DRIVER: dtm-driver-gozero
+      MICRO_SERVICE_TARGET: etcd://goms_etcd:2379/dtmservice
+      MICRO_SERVICE_END_POINT: goms_dtm:36790
+    privileged: true
+    restart: always
+    networks:
+      - goms_net
+
   #Redis缓存【mkdir -p /bind/data/redis】
   redis:
     image: redis:7.0.9

@@ -20,15 +20,6 @@ message Product {
     int64 price = 4;
 }
 
-// Submit
-message SubmitReq {
-    int64 userId = 1;
-    repeated Product products = 2;
-    string consignee = 3;
-    string phone = 4;
-    string address = 5;
-}
-
 // List
 message ListItem {
     int64 id = 1;
@@ -39,9 +30,10 @@ message ListItem {
 }
 
 message ListReq {
-    int32 status = 1;
-    int32 page = 2;
-    int32 pageSize = 3;
+    int64 userId = 1;
+    int32 status = 2;
+    int32 page = 3;
+    int32 pageSize = 4;
 }
 
 message ListReply {
@@ -52,6 +44,7 @@ message ListReply {
 // Detail
 message IdReq {
     int64 id = 1;
+    int64 userId = 2;
 }
 
 message DetailReply {
@@ -66,10 +59,24 @@ message DetailReply {
     int64 createdAt = 9;
 }
 
-service order {
-    rpc Submit(SubmitReq) returns(Empty);
 
+// DTM
+message CreateReq {
+    int64 userId = 1;
+    string refNo = 2;
+    repeated Product products = 3;
+    string consignee = 4;
+    string phone = 5;
+    string address = 6;
+}
+
+service order {
     rpc List(ListReq) returns(ListReply);
 
     rpc Detail(IdReq) returns(DetailReply);
+
+    // DTM
+    rpc Create(CreateReq) returns(Empty);
+
+    rpc CreateRollback(CreateReq) returns(Empty);
 }

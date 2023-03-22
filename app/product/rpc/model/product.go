@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/syncx"
 	"goms/common/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type ProductCategory int32
@@ -31,6 +28,7 @@ type Product struct {
 
 type (
 	ProductModel interface {
+		model.IBaseModel
 		List(ctx context.Context, search string, category ProductCategory, page, pageSize int) ([]*Product, int64, error)
 		FindById(ctx context.Context, id int64) (*Product, error)
 
@@ -41,22 +39,18 @@ type (
 	}
 
 	productModel struct {
-		db    *gorm.DB
-		cache cache.Cache
-		sf    syncx.SingleFlight
-		table string
+		*model.BaseModel
 	}
 )
 
 func NewProductModel(db *gorm.DB, r *redis.Redis) ProductModel {
-	c := cache.NewNode(r, syncx.NewSingleFlight(), cache.NewStat("user"), gorm.ErrRecordNotFound, cache.WithExpiry(time.Hour), cache.WithNotFoundExpiry(time.Hour))
-	return &productModel{db: db, cache: c, sf: syncx.NewSingleFlight(), table: "product"}
+	return &productModel{BaseModel: model.NewBaseModel(db, r, "order")}
 }
 
 func (m *productModel) List(ctx context.Context, search string, category ProductCategory, page, pageSize int) ([]*Product, int64, error) {
 	var total int64
 	var products []*Product
-	session := m.db.WithContext(ctx).Model(&Product{})
+	session := m.DB.WithContext(ctx).Model(&Product{})
 	if search != "" {
 		session.Where("title like ?", "%"+search+"%")
 	}
@@ -71,18 +65,18 @@ func (m *productModel) List(ctx context.Context, search string, category Product
 }
 
 func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error) {
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	result, err := m.sf.Do(cacheKey, func() (any, error) {
+	cacheKey := fmt.Sprintf(model.IdCacheKey, m.Table, id)
+	result, err := m.SF.Do(cacheKey, func() (any, error) {
 		product := &Product{}
 		// 读取缓存
-		if err := m.cache.GetCtx(ctx, cacheKey, product); err == nil {
+		if err := m.Cache.GetCtx(ctx, cacheKey, product); err == nil {
 			return product, nil
 		}
 		// 查询数据
-		if err := m.db.WithContext(ctx).Where("id = ?", id).First(product).Error; err != nil {
+		if err := m.DB.WithContext(ctx).Where("id = ?", id).First(product).Error; err != nil {
 			// 无数据写入占位符
 			if err == gorm.ErrRecordNotFound {
-				err = m.cache.SetCtx(ctx, cacheKey, "*")
+				err = m.Cache.SetCtx(ctx, cacheKey, "*")
 				if err != nil {
 					logx.WithContext(ctx).Error(errors.Wrap(err, "cache placeholder failed"))
 				}
@@ -90,7 +84,7 @@ func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error)
 			return nil, err
 		}
 		// 写入缓存，缓存错误不影响业务
-		if err := m.cache.SetCtx(ctx, cacheKey, product); err != nil {
+		if err := m.Cache.SetCtx(ctx, cacheKey, product); err != nil {
 			logx.WithContext(ctx).Error(errors.Wrap(err, "cache data failed"))
 		}
 		return product, nil
@@ -103,37 +97,29 @@ func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error)
 
 func (m *productModel) Upsert(ctx context.Context, product *Product) error {
 	if product.ID == 0 {
-		if err := m.db.WithContext(ctx).Create(product).Error; err != nil {
+		if err := m.DB.WithContext(ctx).Create(product).Error; err != nil {
 			return err
 		}
 	} else {
-		if err := m.db.WithContext(ctx).Where("id = ?", product.ID).Updates(product).Error; err != nil {
+		if err := m.DB.WithContext(ctx).Where("id = ?", product.ID).Updates(product).Error; err != nil {
 			return err
 		}
 	}
-	// 删除缓存，缓存错误不影响业务
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, product.ID)
-	if err := m.cache.DelCtx(ctx, cacheKey); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
-	}
+	m.RemoveCache(ctx, product.ID)
 	return nil
 }
 
 func (m *productModel) Delete(ctx context.Context, id int64) error {
-	if err := m.db.WithContext(ctx).Delete(&Product{}, "id = ?", id).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Delete(&Product{}, "id = ?", id).Error; err != nil {
 		return err
 	}
-	// 删除缓存，缓存错误不影响业务
-	cacheKey := fmt.Sprintf(model.IdCacheKey, m.table, id)
-	if err := m.cache.DelCtx(ctx, cacheKey); err != nil {
-		logx.WithContext(ctx).Error(errors.Wrap(err, "cache delete failed"))
-	}
+	m.RemoveCache(ctx, id)
 	return nil
 }
 
 func (m *productModel) ListByIds(ctx context.Context, ids []int64) ([]*Product, error) {
 	var products []*Product
-	if err := m.db.WithContext(ctx).Where("id in ?", ids).Find(products).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Where("id in ?", ids).Find(products).Error; err != nil {
 		return nil, err
 	}
 	return products, nil
