@@ -1,0 +1,2 @@
+{"@timestamp":"2023-03-24T03:28:22.739+08:00","caller":"prometheus/agent.go:35","content":"Starting prometheus agent at 0.0.0.0:7901","level":"info"}
+{"@timestamp":"2023-03-24T03:28:27.149+08:00","caller":"prometheus/agent.go:35","content":"Starting prometheus agent at 0.0.0.0:7801","level":"info"}

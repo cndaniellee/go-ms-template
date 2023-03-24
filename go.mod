@@ -6,7 +6,9 @@ require (
 	github.com/CNDanielLee/go-utils v0.0.0-20230322054017-f8708d578c5a
 	github.com/dtm-labs/client v1.18.7
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/hibiken/asynq v0.24.0
 	github.com/pkg/errors v0.9.1
+	github.com/zeromicro/go-queue v1.1.8
 	github.com/zeromicro/go-zero v1.5.0
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
@@ -65,11 +67,15 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/openzipkin/zipkin-go v0.4.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
+	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/segmentio/kafka-go v0.4.38 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/spf13/cast v1.3.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect

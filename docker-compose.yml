@@ -15,48 +15,132 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - /bind/conf/nginx:/etc/nginx/conf.d
-      - /bind/logs/nginx:/var/logtool/nginx
+      - /bind/logs/nginx:/var/log/nginx
     privileged: true
     restart: always
     networks:
       - goms_net
 
   #App热加载容器【mkdir -p /bind/data/air】
-  app-user-api:
+  user-api:
     image: cosmtrek/air:latest
-    container_name: goms_app_user_api
+    container_name: goms_service_user_api
     environment:
       TZ: Asia/Shanghai
       GOPROXY: https://goproxy.cn,direct
       GOPATH: /gopath
     ports:
+      - 7801:7801
       - 9801:9801
     working_dir: /app
     volumes:
-      - .:/app
+      - .:/service
       - /bind/data/air:/gopath
     privileged: true
     restart: always
-    command: -c app/user/api/air.toml
+    command: -c service/user/api/air.toml
     networks:
       - goms_net
 
-  app-user-rpc:
+  user-rpc:
     image: cosmtrek/air:latest
-    container_name: goms_app_user_rpc
+    container_name: goms_service_user_rpc
     environment:
       TZ: Asia/Shanghai
       GOPROXY: https://goproxy.cn,direct
       GOPATH: /gopath
     ports:
+      - 7901:7901
       - 9901:9901
     working_dir: /app
     volumes:
-      - .:/app
+      - .:/service
       - /bind/data/air:/gopath
     privileged: true
     restart: always
-    command: -c app/user/rpc/air.toml
+    command: -c service/user/rpc/air.toml
+    networks:
+      - goms_net
+
+
+  product-api:
+    image: cosmtrek/air:latest
+    container_name: goms_service_product_api
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7802:7802
+      - 9802:9802
+    working_dir: /app
+    volumes:
+      - .:/service
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/product/api/air.toml
+    networks:
+      - goms_net
+
+  product-rpc:
+    image: cosmtrek/air:latest
+    container_name: goms_service_product_rpc
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7902:7902
+      - 9902:9902
+    working_dir: /app
+    volumes:
+      - .:/service
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/product/rpc/air.toml
+    networks:
+      - goms_net
+
+
+  order-api:
+    image: cosmtrek/air:latest
+    container_name: goms_service_order_api
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7803:7803
+      - 9803:9803
+    working_dir: /app
+    volumes:
+      - .:/service
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/order/api/air.toml
+    networks:
+      - goms_net
+
+  order-rpc:
+    image: cosmtrek/air:latest
+    container_name: goms_service_order_rpc
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7903:7903
+      - 9903:9903
+    working_dir: /app
+    volumes:
+      - .:/service
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/order/rpc/air.toml
     networks:
       - goms_net
 

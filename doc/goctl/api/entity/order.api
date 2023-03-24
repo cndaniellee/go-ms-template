@@ -71,15 +71,3 @@ type (
         CreatedAt int64 `json:"createdAt"`
     }
 )
-
-type (
-    PaymentReq {
-        ID int64 `json:"id" validate:"gte=1"`
-        Platform string `json:"platform"`
-    }
-
-    PaymentResp {
-        TotalPrice int64 `json:"totalPrice"`
-        PaySign string `json:"paySign"`
-    }
-)

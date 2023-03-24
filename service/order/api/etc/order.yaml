@@ -1,0 +1,44 @@
+Name: order-api
+Host: 0.0.0.0
+Port: 9803
+
+JwtAuth:
+  AccessSecret: 840f98f283c7e914f98a87c3f30b3f2f
+  AccessExpire: 7200
+
+#RPC
+OrderRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: order-rpc
+  NonBlock: true
+
+ProductRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: product-rpc
+  NonBlock: true
+
+#DTM
+DtmService: etcd://goms_etcd:2379/dtmservice
+
+#日志
+Log:
+  ServiceName: order-api
+  Mode: file
+  Level: info
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 7803
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: order-api
+  Endpoint: http://goms_jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

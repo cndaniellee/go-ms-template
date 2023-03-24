@@ -1,0 +1,35 @@
+Name: product-api
+Host: 0.0.0.0
+Port: 9802
+
+JwtAuth:
+  AccessSecret: 840f98f283c7e914f98a87c3f30b3f2f
+  AccessExpire: 7200
+
+#RPC
+ProductRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: product-rpc
+  NonBlock: true
+
+
+#日志
+Log:
+  ServiceName: product-api
+  Mode: file
+  Level: info
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 7802
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: product-api
+  Endpoint: http://goms_jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

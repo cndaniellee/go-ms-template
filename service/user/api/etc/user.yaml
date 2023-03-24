@@ -1,0 +1,35 @@
+Name: user-api
+Host: 0.0.0.0
+Port: 9801
+
+JwtAuth:
+  AccessSecret: 840f98f283c7e914f98a87c3f30b3f2f
+  AccessExpire: 7200
+
+#RPC
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: user-rpc
+  NonBlock: true
+
+
+#日志
+Log:
+  ServiceName: user-api
+  Mode: file
+  Level: info
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 7801
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: user-api
+  Endpoint: http://goms_jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

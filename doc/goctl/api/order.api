@@ -27,8 +27,4 @@ service order {
 	@doc "订单详情"
 	@handler detail
 	get /detail (IdReq) returns (DetailResp)
-	
-	@doc "订单支付"
-	@handler payment
-	post /payment (PaymentReq) returns (PaymentResp)
 }

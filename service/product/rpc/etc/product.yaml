@@ -1,0 +1,41 @@
+Mode: dev
+
+Name: product-rpc
+ListenOn: 0.0.0.0:9902
+
+Etcd:
+  Hosts:
+    - goms_etcd:2379
+  Key: product-rpc
+
+Redis:
+  Host: goms_redis:6379
+  Type: node
+  Pass: 840f98f283c7e914f98a87c3f30b3f2f
+
+SqlDb:
+  DSN: root:840f98f283c7e914f98a87c3f30b3f2f@tcp(goms_mysql:3306)/goms_product?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  MaxOpenConns: 100   #最大连接数
+  MaxIdleConns: 20    #最大空闲连接数
+  MaxIdleTime: 60     #最大空闲时间（分钟）
+  SlowThreshold: 200  #慢查询阈值（毫秒）
+
+
+#日志
+Log:
+  ServiceName: product-rpc
+  Mode: file
+  Level: info
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 7902
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: product-rpc
+  Endpoint: http://goms_jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

@@ -5,19 +5,19 @@ Clusters:
       Brokers:
         - "goms_kafka:9092"
       Topics:
-        - goms-logtool
+        - goms-log
       Group: pro
       Consumers: 8
   Filters:
-    - Action: drop
-      Conditions:
-        - Key: k8s_container_name
-          Value: "-rpc"
-          Type: contains
-        - Key: level
-          Value: info
-          Type: match
-          Op: and
+#    - Action: drop
+#      Conditions:
+#        - Key: k8s_container_name
+#          Value: "-rpc"
+#          Type: contains
+#        - Key: level
+#          Value: info
+#          Type: match
+#          Op: and
     - Action: remove_field
       Fields:
         - message
