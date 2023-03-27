@@ -42,7 +42,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	}
 
 	// 调用RPC服务
-	reply, err := l.svcCtx.OrderRpc.Detail(l.ctx, &orderclient.IdReq{
+	reply, err := l.svcCtx.OrderRpc.Detail(l.ctx, &orderclient.UserIdReq{
 		Id:     req.ID,
 		UserId: userId,
 	})

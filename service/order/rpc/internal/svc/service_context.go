@@ -35,16 +35,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	rds, err := redis.NewRedis(c.Redis.RedisConf)
 	logx.Must(err)
 
-	// 延迟队列
-	aq := asynq.NewClient(asynq.RedisClientOpt{Addr: c.Redis.Host, Password: c.Redis.Pass})
-
 	return &ServiceContext{
 		Config: c,
 
 		SqlDB: db,
 		Redis: rds,
 
-		Asynq: aq,
+		Asynq: asynq.NewClient(asynq.RedisClientOpt{Addr: c.Redis.Host, Password: c.Redis.Pass}),
 
 		OrderModel: model.NewOrderModel(db, rds),
 	}

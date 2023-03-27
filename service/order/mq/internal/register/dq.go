@@ -2,9 +2,9 @@ package register
 
 import (
 	"github.com/hibiken/asynq"
-	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logx"
-	"goms/service/order/mq/internal/handler/dq"
+	"goms/common/logtool"
+	"goms/common/message"
+	"goms/service/order/mq/internal/handler"
 	"goms/service/order/mq/internal/svc"
 )
 
@@ -15,19 +15,13 @@ func RegDq(srvCtx *svc.ServiceContext) error {
 			Password: srvCtx.Config.Redis.Pass,
 		},
 		asynq.Config{
-			IsFailure: func(err error) bool {
-				if err != nil {
-					logx.Error(errors.Wrap(err, "asynq handler error"))
-					return true
-				}
-				return false
-			},
+			Logger: logtool.NewAsynqLogger(),
 		},
 	)
 
 	mux := asynq.NewServeMux()
 
-	mux.Handle("", dq.NewPaymentTimeoutHandler(srvCtx))
+	mux.Handle(message.DqOrderPaymentTimeout, handler.NewPaymentTimeoutHandler(srvCtx))
 
-	return srv.Run(mux)
+	return srv.Start(mux)
 }

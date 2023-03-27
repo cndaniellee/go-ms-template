@@ -18,8 +18,8 @@ type Model struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-const IdCacheKey = "Cache:%s:id:%d"
-const IdLockKey = "Lock:%s:id:%d"
+const IdCacheKey = "cache:%s:id:%d"
+const IdLockKey = "lock:%s:id:%d"
 
 type (
 	IBaseModel interface {

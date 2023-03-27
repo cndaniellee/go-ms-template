@@ -34,7 +34,7 @@ services:
       - 9801:9801
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always
@@ -54,7 +54,7 @@ services:
       - 9901:9901
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always
@@ -75,7 +75,7 @@ services:
       - 9802:9802
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always
@@ -95,7 +95,7 @@ services:
       - 9902:9902
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always
@@ -116,7 +116,7 @@ services:
       - 9803:9803
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always
@@ -136,7 +136,7 @@ services:
       - 9903:9903
     working_dir: /app
     volumes:
-      - .:/service
+      - .:/app
       - /bind/data/air:/gopath
     privileged: true
     restart: always

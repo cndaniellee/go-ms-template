@@ -4,6 +4,7 @@ import (
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -11,7 +12,10 @@ type Config struct {
 
 	Redis redis.RedisConf
 
-	Kafka struct {
-		OrderCreate kq.KqConf
-	}
+	OrderRpcConf   zrpc.RpcClientConf
+	ProductRpcConf zrpc.RpcClientConf
+
+	DtmService string
+
+	OrderCreateConf kq.KqConf
 }

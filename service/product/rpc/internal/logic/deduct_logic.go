@@ -45,15 +45,21 @@ func (l *DeductLogic) Deduct(in *product.DeductReq) (*product.Empty, error) {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	// 使用Redis分布式锁，不锁数据库
-	lock := redis.NewRedisLock(l.svcCtx.Redis, fmt.Sprintf(model.IdLockKey, l.svcCtx.ProductModel.Name(), in.Id))
-	if _, err = lock.AcquireCtx(l.ctx); err != nil {
-		l.Logger.Error(errors.Wrap(err, "acquire redis lock failed"))
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
 	// 在Barrier中执行事务
 	if err = barrier.CallWithDB(db, func(tx *sql.Tx) error {
+		// 使用Redis分布式锁，不锁数据库
+		lock := redis.NewRedisLock(l.svcCtx.Redis, fmt.Sprintf(model.IdLockKey, l.svcCtx.ProductModel.Name(), in.Id))
+		if _, err = lock.AcquireCtx(l.ctx); err != nil {
+			l.Logger.Error(errors.Wrap(err, "acquire redis lock failed"))
+			return status.Error(codes.Internal, err.Error())
+		}
+		// 解锁
+		defer func(lock *redis.RedisLock, ctx context.Context) {
+			if _, err = lock.ReleaseCtx(ctx); err != nil {
+				l.Logger.Error(errors.Wrap(err, "release redis lock failed"))
+			}
+		}(lock, l.ctx)
+		// 扣减库存
 		result, err := tx.Exec("UPDATE `product` SET `stock` = `stock` - ? WHERE `id` = ? AND `stock` >= ? AND `deleted_at` IS NULL", in.Amount, in.Id, in.Amount)
 		if err != nil {
 			return status.Error(codes.Internal, err.Error())
@@ -70,12 +76,6 @@ func (l *DeductLogic) Deduct(in *product.DeductReq) (*product.Empty, error) {
 	}); err != nil {
 		l.Logger.Error(errors.Wrap(err, "dtm tx execute failed"))
 		return nil, err
-	}
-
-	// 解锁
-	if _, err = lock.ReleaseCtx(l.ctx); err != nil {
-		l.Logger.Error(errors.Wrap(err, "release redis lock failed"))
-		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &product.Empty{}, nil

@@ -5,16 +5,36 @@ Redis:
   Type: node
   Pass: 840f98f283c7e914f98a87c3f30b3f2f
 
-Kafka:
-  OrderCreate:
-    Name: OrderCreate
-    Brokers:
-      - goms_kafka:9092
-    Group: order-create-group
-    Topic: order-create-topic
-    Offset: first
-    Consumers: 3
-    Processors: 3
+#RPC
+OrderRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: order-rpc
+  NonBlock: true
+
+ProductRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: product-rpc
+  NonBlock: true
+
+
+#DTM
+DtmService: etcd://goms_etcd:2379/dtmservice
+
+
+#Kafka
+OrderCreateConf:
+  Name: OrderCreate
+  Brokers:
+    - goms_kafka:9092
+  Group: order-create-group
+  Topic: order-create-topic
+  Offset: first
+  Consumers: 3
+  Processors: 3
 
 
 #日志

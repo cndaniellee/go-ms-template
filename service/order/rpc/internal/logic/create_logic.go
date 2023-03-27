@@ -3,15 +3,20 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/dtm-labs/client/dtmgrpc"
+	"github.com/hibiken/asynq"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"goms/common/message"
 	"goms/service/order/rpc/internal/svc"
 	"goms/service/order/rpc/model"
+	"goms/service/order/rpc/model/enum"
 	"goms/service/order/rpc/pb/order"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"time"
 )
 
 type CreateLogic struct {
@@ -58,7 +63,7 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 	o := &model.Order{
 		UserID:        in.UserId,
 		RefNo:         in.RefNo,
-		Status:        model.OrderStatusUnpaid,
+		Status:        enum.OrderStatusUnpaid,
 		Consignee:     in.Consignee,
 		Phone:         in.Phone,
 		Address:       in.Address,
@@ -88,6 +93,16 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 			return tx.Create(o.OrderProducts)
 		})
 		if _, err = tx.Exec(subSql); err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+		// 添加订单超时延迟队列
+		msg, err := json.Marshal(message.DqOrderIdMsg{
+			OrderID: orderId,
+		})
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+		if _, err = l.svcCtx.Asynq.EnqueueContext(l.ctx, asynq.NewTask(message.DqOrderPaymentTimeout, msg), asynq.ProcessAt(time.Now().Add(time.Minute*15))); err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}
 		return nil

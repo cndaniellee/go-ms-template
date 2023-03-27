@@ -21,8 +21,13 @@ ProductRpcConf:
     Key: product-rpc
   NonBlock: true
 
-#DTM
-DtmService: etcd://goms_etcd:2379/dtmservice
+
+#Kafka
+OrderCreateConf:
+  Brokers:
+    - goms_kafka:9092
+  Topic: order-create-topic
+
 
 #日志
 Log:

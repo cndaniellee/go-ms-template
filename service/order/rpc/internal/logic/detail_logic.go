@@ -26,10 +26,10 @@ func NewDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DetailLogi
 	}
 }
 
-func (l *DetailLogic) Detail(in *order.IdReq) (*order.DetailReply, error) {
+func (l *DetailLogic) Detail(in *order.UserIdReq) (*order.DetailReply, error) {
 
 	// 获取订单
-	o, err := l.svcCtx.OrderModel.FindById(l.ctx, in.UserId, in.Id)
+	o, err := l.svcCtx.OrderModel.FindByUserId(l.ctx, in.UserId, in.Id)
 	switch err {
 	case gorm.ErrRecordNotFound:
 		return nil, status.Error(codes.NotFound, err.Error())

@@ -27,7 +27,7 @@ func (s *OrderServer) List(ctx context.Context, in *order.ListReq) (*order.ListR
 	return l.List(in)
 }
 
-func (s *OrderServer) Detail(ctx context.Context, in *order.IdReq) (*order.DetailReply, error) {
+func (s *OrderServer) Detail(ctx context.Context, in *order.UserIdReq) (*order.DetailReply, error) {
 	l := logic.NewDetailLogic(ctx, s.svcCtx)
 	return l.Detail(in)
 }
@@ -41,4 +41,10 @@ func (s *OrderServer) Create(ctx context.Context, in *order.CreateReq) (*order.E
 func (s *OrderServer) CreateRollback(ctx context.Context, in *order.CreateReq) (*order.Empty, error) {
 	l := logic.NewCreateRollbackLogic(ctx, s.svcCtx)
 	return l.CreateRollback(in)
+}
+
+// Internal
+func (s *OrderServer) CheckPaymentTimeout(ctx context.Context, in *order.IdReq) (*order.Empty, error) {
+	l := logic.NewCheckPaymentTimeoutLogic(ctx, s.svcCtx)
+	return l.CheckPaymentTimeout(in)
 }

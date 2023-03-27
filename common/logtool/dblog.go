@@ -20,38 +20,38 @@ const (
 	traceInfoStr = "%s\n[info][rows:%v] %s"
 )
 
-type sqlDbLogger struct {
+type SqlDbLogger struct {
 	logLevel      logger.LogLevel
 	slowThreshold time.Duration
 }
 
-func NewSqlDbLogger(slowThreshold int) *sqlDbLogger {
-	return &sqlDbLogger{slowThreshold: time.Duration(slowThreshold) * time.Millisecond}
+func NewSqlDbLogger(slowThreshold int) *SqlDbLogger {
+	return &SqlDbLogger{slowThreshold: time.Duration(slowThreshold) * time.Millisecond}
 }
 
-func (l *sqlDbLogger) LogMode(level logger.LogLevel) logger.Interface {
+func (l *SqlDbLogger) LogMode(level logger.LogLevel) logger.Interface {
 	l.logLevel = level
 	return l
 }
 
-func (l *sqlDbLogger) Info(ctx context.Context, msg string, data ...interface{}) {
+func (l *SqlDbLogger) Info(ctx context.Context, msg string, data ...interface{}) {
 	if l.logLevel >= logger.Info {
 		logx.WithContext(ctx).Debugf(infoStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
-func (l *sqlDbLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
+func (l *SqlDbLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
 	if l.logLevel >= logger.Warn {
 		logx.WithContext(ctx).Infof(warnStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
-func (l *sqlDbLogger) Error(ctx context.Context, msg string, data ...interface{}) {
+func (l *SqlDbLogger) Error(ctx context.Context, msg string, data ...interface{}) {
 	if l.logLevel >= logger.Error {
 		logx.WithContext(ctx).Errorf(errStr+msg, append([]interface{}{utils.FileWithLineNum()}, data...)...)
 	}
 }
 
-func (l *sqlDbLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+func (l *SqlDbLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
 	if l.logLevel <= logger.Silent {
 		return
 	}

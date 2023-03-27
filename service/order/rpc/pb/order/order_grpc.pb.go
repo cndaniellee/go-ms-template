@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Order_List_FullMethodName           = "/order.order/List"
-	Order_Detail_FullMethodName         = "/order.order/Detail"
-	Order_Create_FullMethodName         = "/order.order/Create"
-	Order_CreateRollback_FullMethodName = "/order.order/CreateRollback"
+	Order_List_FullMethodName                = "/order.order/List"
+	Order_Detail_FullMethodName              = "/order.order/Detail"
+	Order_Create_FullMethodName              = "/order.order/Create"
+	Order_CreateRollback_FullMethodName      = "/order.order/CreateRollback"
+	Order_CheckPaymentTimeout_FullMethodName = "/order.order/CheckPaymentTimeout"
 )
 
 // OrderClient is the client API for Order service.
@@ -30,10 +31,12 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderClient interface {
 	List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error)
-	Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
+	Detail(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*DetailReply, error)
 	// DTM
 	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
 	CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
+	// Internal
+	CheckPaymentTimeout(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type orderClient struct {
@@ -53,7 +56,7 @@ func (c *orderClient) List(ctx context.Context, in *ListReq, opts ...grpc.CallOp
 	return out, nil
 }
 
-func (c *orderClient) Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error) {
+func (c *orderClient) Detail(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*DetailReply, error) {
 	out := new(DetailReply)
 	err := c.cc.Invoke(ctx, Order_Detail_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -80,15 +83,26 @@ func (c *orderClient) CreateRollback(ctx context.Context, in *CreateReq, opts ..
 	return out, nil
 }
 
+func (c *orderClient) CheckPaymentTimeout(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Order_CheckPaymentTimeout_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility
 type OrderServer interface {
 	List(context.Context, *ListReq) (*ListReply, error)
-	Detail(context.Context, *IdReq) (*DetailReply, error)
+	Detail(context.Context, *UserIdReq) (*DetailReply, error)
 	// DTM
 	Create(context.Context, *CreateReq) (*Empty, error)
 	CreateRollback(context.Context, *CreateReq) (*Empty, error)
+	// Internal
+	CheckPaymentTimeout(context.Context, *IdReq) (*Empty, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -99,7 +113,7 @@ type UnimplementedOrderServer struct {
 func (UnimplementedOrderServer) List(context.Context, *ListReq) (*ListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedOrderServer) Detail(context.Context, *IdReq) (*DetailReply, error) {
+func (UnimplementedOrderServer) Detail(context.Context, *UserIdReq) (*DetailReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Detail not implemented")
 }
 func (UnimplementedOrderServer) Create(context.Context, *CreateReq) (*Empty, error) {
@@ -107,6 +121,9 @@ func (UnimplementedOrderServer) Create(context.Context, *CreateReq) (*Empty, err
 }
 func (UnimplementedOrderServer) CreateRollback(context.Context, *CreateReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRollback not implemented")
+}
+func (UnimplementedOrderServer) CheckPaymentTimeout(context.Context, *IdReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckPaymentTimeout not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 
@@ -140,7 +157,7 @@ func _Order_List_Handler(srv interface{}, ctx context.Context, dec func(interfac
 }
 
 func _Order_Detail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdReq)
+	in := new(UserIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -152,7 +169,7 @@ func _Order_Detail_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: Order_Detail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Detail(ctx, req.(*IdReq))
+		return srv.(OrderServer).Detail(ctx, req.(*UserIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -193,6 +210,24 @@ func _Order_CreateRollback_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CheckPaymentTimeout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CheckPaymentTimeout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CheckPaymentTimeout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CheckPaymentTimeout(ctx, req.(*IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -215,6 +250,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRollback",
 			Handler:    _Order_CreateRollback_Handler,
+		},
+		{
+			MethodName: "CheckPaymentTimeout",
+			Handler:    _Order_CheckPaymentTimeout_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

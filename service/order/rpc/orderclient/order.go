@@ -22,13 +22,16 @@ type (
 	ListReq     = order.ListReq
 	Page        = order.Page
 	Product     = order.Product
+	UserIdReq   = order.UserIdReq
 
 	Order interface {
 		List(ctx context.Context, in *ListReq, opts ...grpc.CallOption) (*ListReply, error)
-		Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error)
+		Detail(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*DetailReply, error)
 		// DTM
 		Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
 		CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error)
+		// Internal
+		CheckPaymentTimeout(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error)
 	}
 
 	defaultOrder struct {
@@ -47,7 +50,7 @@ func (m *defaultOrder) List(ctx context.Context, in *ListReq, opts ...grpc.CallO
 	return client.List(ctx, in, opts...)
 }
 
-func (m *defaultOrder) Detail(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*DetailReply, error) {
+func (m *defaultOrder) Detail(ctx context.Context, in *UserIdReq, opts ...grpc.CallOption) (*DetailReply, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.Detail(ctx, in, opts...)
 }
@@ -61,4 +64,10 @@ func (m *defaultOrder) Create(ctx context.Context, in *CreateReq, opts ...grpc.C
 func (m *defaultOrder) CreateRollback(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*Empty, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.CreateRollback(ctx, in, opts...)
+}
+
+// Internal
+func (m *defaultOrder) CheckPaymentTimeout(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*Empty, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CheckPaymentTimeout(ctx, in, opts...)
 }

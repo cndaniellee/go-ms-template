@@ -6,7 +6,7 @@ Clusters:
         - "goms_kafka:9092"
       Topics:
         - goms-log
-      Group: pro
+      Group: gostash
       Consumers: 8
   Filters:
 #    - Action: drop

@@ -42,7 +42,7 @@ message ListReply {
 }
 
 // Detail
-message IdReq {
+message UserIdReq {
     int64 id = 1;
     int64 userId = 2;
 }
@@ -70,13 +70,21 @@ message CreateReq {
     string address = 6;
 }
 
+// Internal
+message IdReq {
+    int64 id = 1;
+}
+
 service order {
     rpc List(ListReq) returns(ListReply);
 
-    rpc Detail(IdReq) returns(DetailReply);
+    rpc Detail(UserIdReq) returns(DetailReply);
 
     // DTM
     rpc Create(CreateReq) returns(Empty);
 
     rpc CreateRollback(CreateReq) returns(Empty);
+
+    // Internal
+    rpc CheckPaymentTimeout(IdReq) returns(Empty);
 }
