@@ -144,6 +144,25 @@ services:
     networks:
       - goms_net
 
+  order-mq:
+    image: cosmtrek/air:latest
+    container_name: goms_service_order_mq
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7703:7703
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/order/mq/air.toml
+    networks:
+      - goms_net
+
 networks:
   goms_net:
     driver: bridge

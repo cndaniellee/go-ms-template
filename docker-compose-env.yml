@@ -18,6 +18,7 @@ services:
     environment:
       TZ: Asia/Shanghai
       ALLOW_NONE_AUTHENTICATION: yes
+      ETCD_ADVERTISE_CLIENT_URLS: http://goms_etcd:2379
     privileged: true
     restart: always
     volumes:
