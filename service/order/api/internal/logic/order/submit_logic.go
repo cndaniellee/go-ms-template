@@ -43,7 +43,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	// 转换数据
 	ids := make([]int64, len(req.Products))
 	products := make([]message.OrderProduct, len(req.Products))
-	for i, item := range products {
+	for i, item := range req.Products {
 		ids[i] = item.ID
 		products[i] = message.OrderProduct{
 			ID:     item.ID,

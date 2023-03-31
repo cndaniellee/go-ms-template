@@ -60,48 +60,48 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 		return
 	}
 
-	// 使用MapReduce分别到产品服务获取产品数据
-	list, err := mr.MapReduce[*orderclient.ListItem, types.ListItem, []types.ListItem](func(source chan<- *orderclient.ListItem) {
-		for _, item := range reply.List {
-			source <- item
-		}
-	}, func(item *orderclient.ListItem, writer mr.Writer[types.ListItem], cancel func(error)) {
-		itemIds := make([]int64, len(item.Products))
+	// 转换数据
+	list := make([]types.ListItem, len(reply.List))
+	for i, item := range reply.List {
 		products := make([]types.ProductsResp, len(item.Products))
-		for i, product := range item.Products {
-			itemIds[i] = product.Id
-			products[i] = types.ProductsResp{
+		for j, product := range item.Products {
+			products[j] = types.ProductsResp{
 				ID:     product.Id,
-				Amount: product.Amount,
 				Price:  product.Price,
+				Amount: product.Amount,
 			}
 		}
-		// 调用RPC服务
-		byIds, err := l.svcCtx.ProductRpc.ListByIds(l.ctx, &productclient.ListByIdsReq{
-			Ids: itemIds,
-		})
-		if err != nil {
-			cancel(err)
-		}
-		// 将获取到的产品信息回写
-		for i, product := range byIds.List {
-			products[i].Title = product.Title
-		}
-		listItem := types.ListItem{
+		list[i] = types.ListItem{
 			ID:          item.Id,
 			Status:      item.Status,
 			Products:    products,
 			TotalAmount: item.TotalAmount,
 			TotalPrice:  item.TotalPrice,
 		}
-		writer.Write(listItem)
-	}, func(pipe <-chan types.ListItem, writer mr.Writer[[]types.ListItem], cancel func(error)) {
-		list := make([]types.ListItem, 0, len(reply.List))
-		for item := range pipe {
-			list = append(list, item)
+	}
+
+	// 使用MapReduce分别到产品服务获取产品数据
+	err = mr.MapReduceVoid[types.ListItem, any](func(source chan<- types.ListItem) {
+		for _, item := range list {
+			source <- item
 		}
-		writer.Write(list)
-	})
+	}, func(item types.ListItem, writer mr.Writer[any], cancel func(error)) {
+		productIds := make([]int64, len(item.Products))
+		for i, product := range item.Products {
+			productIds[i] = product.ID
+		}
+		// 调用RPC服务
+		byIds, err := l.svcCtx.ProductRpc.ListByIds(l.ctx, &productclient.ListByIdsReq{
+			Ids: productIds,
+		})
+		if err != nil {
+			cancel(err)
+		}
+		// 将获取到的产品信息回写
+		for i, product := range byIds.List {
+			item.Products[i].Title = product.Title
+		}
+	}, func(pipe <-chan any, cancel func(error)) {})
 	if err != nil {
 		if s, ok := status.FromError(err); ok {
 			switch s.Code() {

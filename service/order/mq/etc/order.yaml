@@ -40,7 +40,7 @@ OrderCreateConf:
 #日志
 Log:
   ServiceName: order-mq
-  Mode: file
+#  Mode: file
   Level: info
 
 #监控

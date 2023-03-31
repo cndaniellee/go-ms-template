@@ -32,7 +32,7 @@ OrderCreateConf:
 #日志
 Log:
   ServiceName: order-api
-  Mode: file
+#  Mode: file
   Level: info
 
 #监控

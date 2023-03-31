@@ -24,7 +24,7 @@ SqlDb:
 #日志
 Log:
   ServiceName: user-rpc
-  Mode: file
+#  Mode: file
   Level: info
 
 #监控

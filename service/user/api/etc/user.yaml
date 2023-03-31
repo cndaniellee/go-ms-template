@@ -18,7 +18,7 @@ UserRpcConf:
 #日志
 Log:
   ServiceName: user-api
-  Mode: file
+#  Mode: file
   Level: info
 
 #监控

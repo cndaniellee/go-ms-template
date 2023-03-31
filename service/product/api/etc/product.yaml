@@ -18,7 +18,7 @@ ProductRpcConf:
 #日志
 Log:
   ServiceName: product-api
-  Mode: file
+#  Mode: file
   Level: info
 
 #监控
