@@ -1,5 +1,7 @@
 package es
 
+// ElasticSearch Index Mapping
+
 type Properties map[string]map[string]any
 
 type IndexMapping struct {
