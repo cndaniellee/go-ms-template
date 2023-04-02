@@ -43,7 +43,7 @@ func (l *EditLogic) Edit(in *product.EditReq) (*product.IdReply, error) {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 
-	// 更新入ES
+	// ES：更新
 	if err := l.svcCtx.ProductES.Upsert(l.ctx, p); err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}

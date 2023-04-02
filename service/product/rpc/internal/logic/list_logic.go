@@ -29,7 +29,7 @@ func NewListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListLogic {
 
 func (l *ListLogic) List(in *product.ListReq) (*product.ListReply, error) {
 
-	// 获取产品列表
+	// ES：获取产品列表
 	products, total, err := l.svcCtx.ProductES.Search(l.ctx, in.Search, enum.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "query products failed"))

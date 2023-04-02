@@ -1,4 +1,4 @@
-package esearch
+package es
 
 type Properties map[string]map[string]any
 
