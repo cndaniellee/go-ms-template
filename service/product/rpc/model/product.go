@@ -5,29 +5,23 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"goms/common/model"
+	"goms/service/product/rpc/model/enum"
 	"gorm.io/gorm"
-)
-
-type ProductCategory int32
-
-const (
-	ProductCategoryTool ProductCategory = iota + 1
-	ProductCategoryFood
 )
 
 type Product struct {
 	model.Model
-	Title       string          `gorm:"type:varchar(128);comment:标题"`
-	Category    ProductCategory `gorm:"type:tinyint(1);comment:类型"`
-	Stock       int64           `gorm:"type:bigint(20);comment:库存"`
-	Price       int64           `gorm:"type:bigint(20);comment:价格（单位：分）"`
-	Description string          `gorm:"type:mediumtext;comment:详情描述"`
+	Title       string               `gorm:"type:varchar(128);comment:标题"`
+	Category    enum.ProductCategory `gorm:"type:tinyint(1);comment:类型"`
+	Stock       int64                `gorm:"type:bigint(20);comment:库存"`
+	Price       int64                `gorm:"type:bigint(20);comment:价格（单位：分）"`
+	Description string               `gorm:"type:mediumtext;comment:详情描述"`
 }
 
 type (
 	ProductModel interface {
 		model.IBaseModel
-		List(ctx context.Context, search string, category ProductCategory, page, pageSize int) ([]*Product, int64, error)
+		//List(ctx context.Context, search string, category enum.ProductCategory, page, pageSize int) ([]*Product, int64, error)
 		FindById(ctx context.Context, id int64) (*Product, error)
 
 		Upsert(ctx context.Context, user *Product) error
@@ -45,22 +39,22 @@ func NewProductModel(db *gorm.DB, r *redis.Redis) ProductModel {
 	return &productModel{BaseModel: model.NewBaseModel(db, r, "order")}
 }
 
-func (m *productModel) List(ctx context.Context, search string, category ProductCategory, page, pageSize int) ([]*Product, int64, error) {
-	var total int64
-	var products []*Product
-	session := m.DB.WithContext(ctx).Model(&Product{})
-	if search != "" {
-		session.Where("title like ?", "%"+search+"%")
-	}
-	if category != 0 {
-		session.Where("category = ?", category)
-	}
-
-	if err := session.Order("created_at desc").Count(&total).Limit(pageSize).Offset((page - 1) * pageSize).Find(&products).Error; err != nil {
-		return nil, 0, err
-	}
-	return products, total, nil
-}
+//func (m *productModel) List(ctx context.Context, search string, category enum.ProductCategory, page, pageSize int) ([]*Product, int64, error) {
+//	var total int64
+//	var products []*Product
+//	session := m.DB.WithContext(ctx).Model(&Product{})
+//	if search != "" {
+//		session.Where("title like ?", "%"+search+"%")
+//	}
+//	if category != 0 {
+//		session.Where("category = ?", category)
+//	}
+//
+//	if err := session.Order("created_at desc").Count(&total).Limit(pageSize).Offset((page - 1) * pageSize).Find(&products).Error; err != nil {
+//		return nil, 0, err
+//	}
+//	return products, total, nil
+//}
 
 func (m *productModel) FindById(ctx context.Context, id int64) (*Product, error) {
 	cacheKey := fmt.Sprintf(model.IdCacheKey, m.Table, id)

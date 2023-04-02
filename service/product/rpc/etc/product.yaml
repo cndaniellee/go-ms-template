@@ -20,6 +20,8 @@ SqlDb:
   MaxIdleTime: 60     #最大空闲时间（分钟）
   SlowThreshold: 200  #慢查询阈值（毫秒）
 
+ElasticSearch: http://goms_elasticsearch:9200
+
 
 #日志
 Log:

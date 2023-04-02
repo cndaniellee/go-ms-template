@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"goms/service/product/rpc/model"
+	"goms/service/product/rpc/model/enum"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -31,7 +32,7 @@ func (l *EditLogic) Edit(in *product.EditReq) (*product.IdReply, error) {
 	// 新增或编辑产品
 	p := &model.Product{
 		Title:       in.Title,
-		Category:    model.ProductCategory(in.Category),
+		Category:    enum.ProductCategory(in.Category),
 		Stock:       in.Stock,
 		Price:       in.Price,
 		Description: in.Description,
@@ -39,6 +40,11 @@ func (l *EditLogic) Edit(in *product.EditReq) (*product.IdReply, error) {
 	// 0：新增，Other：编辑
 	p.ID = in.Id
 	if err := l.svcCtx.ProductModel.Upsert(l.ctx, p); err != nil {
+		return nil, status.Error(codes.Aborted, err.Error())
+	}
+
+	// 更新入ES
+	if err := l.svcCtx.ProductES.Upsert(l.ctx, p); err != nil {
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 

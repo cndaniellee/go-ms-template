@@ -156,15 +156,17 @@ services:
     depends_on:
       - redis
       
-  #ElasticSearch搜索存储引擎【mkdir -p /bind/data/elasticsearch】
+  #ElasticSearch搜索存储引擎【mkdir -p /bind/conf/elasticsearch/plugins /bind/data/elasticsearch】
+  #中文分词【./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.7/elasticsearch-analysis-ik-7.17.7.zip】
   elasticsearch:
-    image: elasticsearch:7.17.9
+    image: elasticsearch:7.17.7
     container_name: goms_elasticsearch
     environment:
       discovery.type: single-node
       ES_JAVA_OPTS: -Xms512m -Xmx512m
       TZ: Asia/Shanghai
     volumes:
+      - /bind/conf/elasticsearch/plugins:/usr/share/elasticsearch/plugins
       - /bind/data/elasticsearch:/usr/share/elasticsearch/data
     restart: always
     ports:
@@ -175,7 +177,7 @@ services:
 
   #Kibana查看ElasticSearch数据
   kibana:
-    image: kibana:7.17.9
+    image: kibana:7.17.7
     container_name: goms_kibana
     environment:
       elasticsearch.hosts: http://goms_elasticsearch:9200
@@ -191,7 +193,7 @@ services:
       
   #FileBeat收集业务数据【mkdir -p /bind/conf/filebeat】【vim /bind/conf/filebeat/filebeat.yml】
   filebeat:
-    image: elastic/filebeat:7.17.9
+    image: elastic/filebeat:7.17.7
     container_name: goms_filebeat
     environment:
       TZ: Asia/Shanghai

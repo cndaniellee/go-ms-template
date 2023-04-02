@@ -9,4 +9,6 @@ type Config struct {
 	zrpc.RpcServerConf
 
 	SqlDB storage.SqlDbConf
+
+	ElasticSearch string
 }

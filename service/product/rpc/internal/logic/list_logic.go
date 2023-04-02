@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"github.com/pkg/errors"
-	"goms/service/product/rpc/model"
+	"goms/service/product/rpc/model/enum"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -30,11 +30,18 @@ func NewListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListLogic {
 func (l *ListLogic) List(in *product.ListReq) (*product.ListReply, error) {
 
 	// 获取产品列表
-	products, total, err := l.svcCtx.ProductModel.List(l.ctx, in.Search, model.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
+	products, total, err := l.svcCtx.ProductES.Search(l.ctx, in.Search, enum.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
 	if err != nil {
 		l.Logger.Error(errors.Wrap(err, "query products failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
+
+	// 获取产品列表
+	//products, total, err := l.svcCtx.ProductModel.List(l.ctx, in.Search, enum.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
+	//if err != nil {
+	//	l.Logger.Error(errors.Wrap(err, "query products failed"))
+	//	return nil, status.Error(codes.Aborted, err.Error())
+	//}
 
 	// 转换数据
 	list := make([]*product.ListItem, len(products))

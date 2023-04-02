@@ -4,6 +4,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/core/stores/redis"
+	"goms/common/esearch"
 	"goms/common/storage"
 	"goms/service/product/rpc/internal/config"
 	"goms/service/product/rpc/model"
@@ -15,6 +16,8 @@ type ServiceContext struct {
 
 	SqlDB *gorm.DB
 	Redis *redis.Redis
+
+	ProductES *esearch.Product
 
 	ProductModel model.ProductModel
 }
@@ -37,6 +40,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		SqlDB: db,
 		Redis: rds,
+
+		ProductES: esearch.NewProduct(c.ElasticSearch),
 
 		ProductModel: model.NewProductModel(db, rds),
 	}
