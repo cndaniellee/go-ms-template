@@ -24,6 +24,7 @@ In order to facilitate the follow-up of new projects, I integrate the tools that
 - Etcd - Registry
 - DTM - Distributed transaction
 - Redis - Distributed cache/lock
+- RedisManager - Redis Monitors
 - MySQL - Database
 - Zookeeper-Registry (Kafka only)
 - Kafka - Message queue

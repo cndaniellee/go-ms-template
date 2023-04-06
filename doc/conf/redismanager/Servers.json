@@ -1,0 +1,8 @@
+[{
+  "ID": "6490c7135000264",
+  "Name": "GomsRedis",
+  "Addrs": ["goms_redis:6379"],
+  "Password": "840f98f283c7e914f98a87c3f30b3f2f",
+  "Selected": true,
+  "TLS": {}
+}]

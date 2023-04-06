@@ -14,8 +14,8 @@ ADD go.mod .
 ADD go.sum .
 RUN go mod download
 COPY . .
-COPY service/user/api/etc /app/etc
-RUN go build -ldflags="-s -w" -o /app/run service/user/api/user.go
+COPY service/order/rpc/etc /app/etc
+RUN go build -ldflags="-s -w" -o /app/run service/order/rpc/order.go
 
 
 FROM scratch
@@ -28,4 +28,4 @@ WORKDIR /app
 COPY --from=builder /app/run /app/run
 COPY --from=builder /app/etc /app/etc
 
-CMD ["./run", "-f", "etc/user.yaml"]
+CMD ["./run", "-f", "etc/order.yaml"]

@@ -23,6 +23,7 @@
 - Etcd - 注册中心
 - DTM - 分布式事务
 - Redis - 分布式缓存/锁
+- RedisManager - Redis监控
 - MySQL - 数据库
 - Zookeeper - 注册中心（仅Kafka）
 - Kafka - 消息队列

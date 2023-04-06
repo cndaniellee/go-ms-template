@@ -129,6 +129,20 @@ services:
 
 #监控组件
 
+  #RedisManager监控Redis【mkdir -p /bind/conf/redismanager】
+  redismanager:
+    image: lukiya/redismanager:latest
+    container_name: goms_redismanager
+    ports:
+      - 16379:16379
+    volumes:
+      - /bind/conf/redismanager/Servers.json:/app/Servers.json
+    restart: always
+    networks:
+      - goms_net
+    depends_on:
+      - redis
+
   #AsynqMon监控Asynq
   asynqmon:
     image: hibiken/asynqmon:latest

@@ -1,11 +1,16 @@
 
 
-#生成Api部分代码（在当前目录执行，*改为模块名称）
-goctl api go --api ./doc/goctl/api/product.api --dir ./service/product/api --home ./doc/goctl/template --style go_zero
+#生成Api部分代码（在根目录执行，*改为模块名称）
+goctl api go --api ./doc/goctl/api/*.api --dir ./service/*/api --home ./doc/goctl/template --style go_zero
 
 
-goctl rpc protoc ./doc/goctl/rpc/product.proto --zrpc_out=./service/product/rpc --go_out=./service/product/rpc/pb --go-grpc_out=./service/product/rpc/pb --home ./doc/goctl/template --style go_zero
+#生成Rpc部分代码（在根目录执行，*改为模块名称）
+goctl rpc protoc ./doc/goctl/rpc/*.proto --zrpc_out=./service/*/rpc --go_out=./service/*/rpc/pb --go-grpc_out=./service/*/rpc/pb --home ./doc/goctl/template --style go_zero
 
 
 #生成Dockerfile（在模块目录中执行，*改为模块名称）
 goctl docker --go *.go --exe run
+
+
+#构建Docker镜像
+docker build -t user-api:latest -f service/user/api/Dockerfile .
