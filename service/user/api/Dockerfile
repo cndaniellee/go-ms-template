@@ -28,4 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/run /app/run
 COPY --from=builder /app/etc /app/etc
 
+EXPOSE 7801
+EXPOSE 9801
+
 CMD ["./run", "-f", "etc/user.yaml"]

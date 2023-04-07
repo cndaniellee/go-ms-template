@@ -14,3 +14,7 @@ goctl docker --go *.go --exe run
 
 #构建Docker镜像
 docker build -t user-api:latest -f service/user/api/Dockerfile .
+
+
+
+goctl kube deploy -name user-api -namespace goms -image 192.168.2.220:8443/goms/user-api:1.0.0 -o kubi.yaml -port 7801 -port 9801

@@ -28,4 +28,6 @@ WORKDIR /app
 COPY --from=builder /app/run /app/run
 COPY --from=builder /app/etc /app/etc
 
+EXPOSE 7703
+
 CMD ["./run", "-f", "etc/order.yaml"]
