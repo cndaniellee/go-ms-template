@@ -15,7 +15,7 @@
 
 - Docker - 容器管理 (Dev ENV)
 - Air - 热加载 (Dev ENV)
-- K8S - 容器管理 (Pro ENV)
+- K8S - 服务集群 (Pro ENV)
 - Docker Compose - 部署工具
 - Go-Zero - API/RPC框架
 - Validator.V9 - 参数校验

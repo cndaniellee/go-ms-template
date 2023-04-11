@@ -8,15 +8,15 @@ I came into contact with Golang by some chance after I joined a company under An
 \
 However, Golang gradually replaced Java as my primary development language (really sweet), so naturally I needed to develop large scale applications. Java microservices side of the spring family bucket is sitting on a pedestal, while Golang side is in a state of a hundred flowers bloom. \
 \
-From go-kit in the early toolkit form to go-micro, go-zero, kratos, kitex, etc., Go-Zero was the first thing I got, for the same reasons as when I chose iris: community, contribution activity, ecology, and tools (goctl flavor) all felt good. \
+From go-kit in the early toolkit form to go-micro, go-zero, kratos, kitex, etc., Go-Zero was the first framework I got, for the same reasons as when I chose iris: community, contribution activity, ecology, and tools (goctl etc.) all felt good. \
 \
-In order to facilitate the follow-up of new projects, I integrate the tools that may be used into a template, which contains a set of simple store functions, and open source it for everyone to learn and use. Welcome Star/Issue, and jointly improve the quality of our code.
+In order to facilitate the follow-up of new projects, I integrate the tools that may be used into a template, which includes some simple shop apis, and open source it for everyone to learn and use. Welcome Star/Issue, and jointly improve the quality of our code.
 
 #### Tool list
 
 - Docker - Container Management (Dev ENV)
 - Air - Hot load (Dev ENV)
-- K8S - Container Management (Pro ENV)
+- K8S - Service Cluster (Pro ENV)
 - Docker Compose - Deployment tool
 - Go-Zero - API/RPC framework
 - Validator.V9 - Parameter verification
