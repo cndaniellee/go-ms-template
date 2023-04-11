@@ -68,5 +68,7 @@
         - mq：模块的消息队列、延迟队列消费端
         - rpc：模块的RPC服务
 
+#### 组件架构
+![architecture.jpg](doc%2Farchitecture.jpg)
 
 #### 感谢 @Mikaelemmmm 项目中部分内容给予的启发。

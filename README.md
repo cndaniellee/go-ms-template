@@ -69,4 +69,7 @@ The directory structure of this project is very concise, and high readability is
     - mq: indicates the message queue or delay queue consumption end of the module
     - rpc: RPC service of the module
 
+#### Component architecture
+![architecture.jpg](doc%2Farchitecture.jpg)
+
 #### Thank @Mikaelemmmm for the inspiration given by part of the project.
