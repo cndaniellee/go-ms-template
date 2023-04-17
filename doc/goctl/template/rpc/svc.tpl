@@ -30,6 +30,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SqlDB: db,
 		Redis: rds,
 
-        ExampleModel: model.NewExampleModel(sqlDb, rds),
+        ExampleModel: model.NewExampleModel(db, rds),
 	}
 }

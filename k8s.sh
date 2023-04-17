@@ -4,4 +4,3 @@ chmod 700 get_helm.sh
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
-helm install bitnami/mysql --generate-name
