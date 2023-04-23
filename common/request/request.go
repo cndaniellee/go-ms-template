@@ -8,10 +8,8 @@ import (
 )
 
 func ParseUserId(ctx context.Context) (userId int64, err error) {
-	if value, ok := ctx.Value(auth.JwtUserIdKey).(json.Number); ok {
-		if userId, err = value.Int64(); err != nil {
-			return
-		}
+	if userId, err = ctx.Value(auth.JwtUserIdKey).(json.Number).Int64(); err != nil {
+		return
 	}
 	if userId <= 0 {
 		err = errors.Errorf("invalid user id: %v", userId)

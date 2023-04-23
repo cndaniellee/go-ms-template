@@ -37,7 +37,7 @@ func (l *CurrentLogic) Current(in *user.CurrentReq) (*user.CurrentReply, error) 
 	case nil:
 		break
 	default:
-		l.Logger.Error(errors.Wrap(err, "query user failed"))
+		l.Error(errors.Wrap(err, "query user failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 

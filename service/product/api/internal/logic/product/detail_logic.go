@@ -42,7 +42,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 		case codes.Aborted:
 			err = response.ErrResp(2, productcode.Detail, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
+			l.Error(errors.Wrap(err, "product rpc call failed"))
 			err = response.ErrResp(3, productcode.Detail, response.ServiceError, s.Message())
 		}
 		return

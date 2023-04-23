@@ -41,12 +41,12 @@ func (l *RegisterLogic) Register(req *types.AuthReq) (resp *types.AuthResp, err 
 		if s, ok := status.FromError(err); ok {
 			switch s.Code() {
 			case codes.AlreadyExists:
-				err = response.ErrResp(0, usercode.Register, response.AlreadyExists, s.Message())
+				err = response.ErrResp(1, usercode.Register, response.AlreadyExists, s.Message())
 			case codes.Aborted:
-				err = response.ErrResp(1, usercode.Register, response.InternalError, s.Message())
+				err = response.ErrResp(2, usercode.Register, response.InternalError, s.Message())
 			default:
-				l.Logger.Error(errors.Wrap(err, "user rpc call failed"))
-				err = response.ErrResp(2, usercode.Register, response.ServiceError, s.Message())
+				l.Error(errors.Wrap(err, "user rpc call failed"))
+				err = response.ErrResp(3, usercode.Register, response.ServiceError, s.Message())
 			}
 			return
 		}
@@ -56,8 +56,8 @@ func (l *RegisterLogic) Register(req *types.AuthReq) (resp *types.AuthResp, err 
 	// 生成用户Token
 	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, reply.UserId)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "generate token failed"))
-		err = response.ErrResp(3, usercode.Register, response.InternalError, err.Error())
+		l.Error(errors.Wrap(err, "generate token failed"))
+		err = response.ErrResp(4, usercode.Register, response.InternalError, err.Error())
 		return
 	}
 

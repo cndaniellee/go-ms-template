@@ -32,12 +32,12 @@ func (l *CreateRollbackLogic) CreateRollback(in *order.CreateReq) (*order.Empty,
 
 	barrier, err := dtmgrpc.BarrierFromGrpc(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "get dtm barrier failed"))
+		l.Error(errors.Wrap(err, "get dtm barrier failed"))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	db, err := l.svcCtx.SqlDB.DB()
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "get db instance failed"))
+		l.Error(errors.Wrap(err, "get db instance failed"))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -49,7 +49,7 @@ func (l *CreateRollbackLogic) CreateRollback(in *order.CreateReq) (*order.Empty,
 		}
 		return nil
 	}); err != nil {
-		l.Logger.Error(errors.Wrap(err, "dtm tx execute failed"))
+		l.Error(errors.Wrap(err, "dtm tx execute failed"))
 		return nil, err
 	}
 

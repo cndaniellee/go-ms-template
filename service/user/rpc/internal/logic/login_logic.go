@@ -39,7 +39,7 @@ func (l *LoginLogic) Login(in *user.AuthReq) (*user.AuthReply, error) {
 	case nil:
 		break
 	default:
-		l.Logger.Error(errors.Wrap(err, "query user failed"))
+		l.Error(errors.Wrap(err, "query user failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 

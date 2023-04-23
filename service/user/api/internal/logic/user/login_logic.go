@@ -38,20 +38,20 @@ func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error)
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.NotFound:
-			err = response.ErrResp(0, usercode.Login, response.NoneMatching, s.Message())
+			err = response.ErrResp(1, usercode.Login, response.NoneMatching, s.Message())
 		case codes.Aborted:
-			err = response.ErrResp(1, usercode.Login, response.InternalError, s.Message())
+			err = response.ErrResp(2, usercode.Login, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "user rpc call failed"))
-			err = response.ErrResp(2, usercode.Login, response.ServiceError, s.Message())
+			l.Error(errors.Wrap(err, "user rpc call failed"))
+			err = response.ErrResp(3, usercode.Login, response.ServiceError, s.Message())
 		}
 		return
 	}
 	// 生成用户Token
 	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, reply.UserId)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "generate token failed"))
-		err = response.ErrResp(3, usercode.Login, response.InternalError, err.Error())
+		l.Error(errors.Wrap(err, "generate token failed"))
+		err = response.ErrResp(4, usercode.Login, response.InternalError, err.Error())
 		return nil, err
 	}
 

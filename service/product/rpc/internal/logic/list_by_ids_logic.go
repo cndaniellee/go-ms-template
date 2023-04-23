@@ -32,7 +32,7 @@ func (l *ListByIdsLogic) ListByIds(in *product.ListByIdsReq) (*product.ListByIds
 	// 获取产品列表
 	products, err := l.svcCtx.ProductModel.ListByIds(l.ctx, in.Ids)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "query products failed"))
+		l.Error(errors.Wrap(err, "query products failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 

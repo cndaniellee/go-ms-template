@@ -37,13 +37,13 @@ func (l *CheckPaymentTimeoutLogic) CheckPaymentTimeout(in *order.IdReq) (*order.
 	// 使用Redis分布式锁，不锁数据库
 	lock := redis.NewRedisLock(l.svcCtx.Redis, fmt.Sprintf(model.IdLockKey, l.svcCtx.OrderModel.Name(), in.Id))
 	if _, err := lock.AcquireCtx(l.ctx); err != nil {
-		l.Logger.Error(errors.Wrap(err, "acquire redis lock failed"))
+		l.Error(errors.Wrap(err, "acquire redis lock failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 	// 解锁
 	defer func(lock *redis.RedisLock, ctx context.Context) {
 		if _, err := lock.ReleaseCtx(ctx); err != nil {
-			l.Logger.Error(errors.Wrap(err, "release redis lock failed"))
+			l.Error(errors.Wrap(err, "release redis lock failed"))
 		}
 	}(lock, l.ctx)
 

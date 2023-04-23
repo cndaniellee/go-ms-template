@@ -32,14 +32,14 @@ func (l *ListLogic) List(in *product.ListReq) (*product.ListReply, error) {
 	// ES：获取产品列表
 	products, total, err := l.svcCtx.ProductES.Search(l.ctx, in.Search, enum.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "query products failed"))
+		l.Error(errors.Wrap(err, "query products failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 
 	// 获取产品列表
 	//products, total, err := l.svcCtx.ProductModel.List(l.ctx, in.Search, enum.ProductCategory(in.Category), int(in.Page), int(in.PageSize))
 	//if err != nil {
-	//	l.Logger.Error(errors.Wrap(err, "query products failed"))
+	//	l.Error(errors.Wrap(err, "query products failed"))
 	//	return nil, status.Error(codes.Aborted, err.Error())
 	//}
 

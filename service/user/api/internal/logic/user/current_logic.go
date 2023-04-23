@@ -33,8 +33,8 @@ func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
-		err = response.ErrResp(0, usercode.Register, response.InternalError, err.Error())
+		l.Error(errors.Wrap(err, "user id parse failed"))
+		err = response.ErrResp(1, usercode.Register, response.InternalError, err.Error())
 		return
 	}
 
@@ -45,12 +45,12 @@ func (l *CurrentLogic) Current() (resp *types.CurrentResp, err error) {
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.NotFound:
-			err = response.ErrResp(1, usercode.Current, response.NoneMatching, s.Message())
+			err = response.ErrResp(2, usercode.Current, response.NoneMatching, s.Message())
 		case codes.Aborted:
-			err = response.ErrResp(2, usercode.Current, response.InternalError, s.Message())
+			err = response.ErrResp(3, usercode.Current, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "user rpc call failed"))
-			err = response.ErrResp(3, usercode.Current, response.ServiceError, s.Message())
+			l.Error(errors.Wrap(err, "user rpc call failed"))
+			err = response.ErrResp(4, usercode.Current, response.ServiceError, s.Message())
 		}
 		return
 	}

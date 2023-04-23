@@ -38,26 +38,26 @@ func (l *OrderCreateHandler) Consume(_, val string) error {
 	// 解析消息
 	var msg message.KqOrderCreateMsg
 	if err := json.Unmarshal([]byte(val), &msg); err != nil {
-		l.Logger.Error(errors.Wrap(err, "unmarshal json failed"))
+		l.Error(errors.Wrap(err, "unmarshal json failed"))
 		return err
 	}
 
 	// 构建RPC连接信息
 	orderRpc, err := l.svcCtx.Config.OrderRpcConf.BuildTarget()
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "order rpc build failed"))
+		l.Error(errors.Wrap(err, "order rpc build failed"))
 		return err
 	}
 	productRpc, err := l.svcCtx.Config.ProductRpcConf.BuildTarget()
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "product rpc build failed"))
+		l.Error(errors.Wrap(err, "product rpc build failed"))
 		return err
 	}
 
 	// 构建Saga事务
 	reply, err := l.svcCtx.DtmClient.NewGid(l.ctx, &emptypb.Empty{})
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "dtm gid fetch failed"))
+		l.Error(errors.Wrap(err, "dtm gid fetch failed"))
 		return err
 	}
 	saga := dtmgrpc.NewSagaGrpc(l.svcCtx.Config.DtmService, reply.Gid)
@@ -95,7 +95,7 @@ func (l *OrderCreateHandler) Consume(_, val string) error {
 
 	// 提交Saga事务
 	if err = saga.Submit(); err != nil {
-		l.Logger.Error(errors.Wrap(err, "dtm saga submit failed"))
+		l.Error(errors.Wrap(err, "dtm saga submit failed"))
 		return err
 	}
 

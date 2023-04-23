@@ -38,12 +38,12 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 
 	barrier, err := dtmgrpc.BarrierFromGrpc(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "get dtm barrier failed"))
+		l.Error(errors.Wrap(err, "get dtm barrier failed"))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	db, err := l.svcCtx.SqlDB.DB()
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "get db instance failed"))
+		l.Error(errors.Wrap(err, "get db instance failed"))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -96,7 +96,7 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 			return status.Error(codes.Internal, err.Error())
 		}
 		// 添加订单超时延迟队列
-		msg, err := json.Marshal(message.DqOrderIdMsg{
+		msg, err := json.Marshal(&message.DqOrderIdMsg{
 			OrderID: orderId,
 		})
 		if err != nil {
@@ -107,7 +107,7 @@ func (l *CreateLogic) Create(in *order.CreateReq) (*order.Empty, error) {
 		}
 		return nil
 	}); err != nil {
-		l.Logger.Error(errors.Wrap(err, "dtm tx execute failed"))
+		l.Error(errors.Wrap(err, "dtm tx execute failed"))
 		return nil, err
 	}
 

@@ -35,7 +35,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
+		l.Error(errors.Wrap(err, "user id parse failed"))
 		err = response.ErrResp(1, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
@@ -60,7 +60,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 		case codes.Aborted:
 			err = response.ErrResp(2, ordercode.Submit, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
+			l.Error(errors.Wrap(err, "product rpc call failed"))
 			err = response.ErrResp(3, ordercode.Submit, response.ServiceError, s.Message())
 		}
 		return
@@ -72,7 +72,7 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 	}
 
 	// 构建Kafka消息
-	msg, err := json.Marshal(message.KqOrderCreateMsg{
+	msg, err := json.Marshal(&message.KqOrderCreateMsg{
 		UserID:    userId,
 		Products:  products,
 		Consignee: req.Consignee,
@@ -80,14 +80,14 @@ func (l *SubmitLogic) Submit(req *types.SubmitReq) (err error) {
 		Address:   req.Address,
 	})
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "marshal json failed"))
+		l.Error(errors.Wrap(err, "marshal json failed"))
 		err = response.ErrResp(2, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}
 
 	// 推送订单创建消息到Kafka
 	if err = l.svcCtx.OrderCreatePusher.Push(string(msg)); err != nil {
-		l.Logger.Error(errors.Wrap(err, "push kafka failed"))
+		l.Error(errors.Wrap(err, "push kafka failed"))
 		err = response.ErrResp(3, ordercode.Submit, response.InternalError, err.Error())
 		return
 	}

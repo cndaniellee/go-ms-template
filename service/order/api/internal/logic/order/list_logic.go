@@ -37,7 +37,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
+		l.Error(errors.Wrap(err, "user id parse failed"))
 		err = response.ErrResp(1, ordercode.List, response.InternalError, err.Error())
 		return
 	}
@@ -54,7 +54,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 		case codes.Aborted:
 			err = response.ErrResp(2, ordercode.List, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "order rpc call failed"))
+			l.Error(errors.Wrap(err, "order rpc call failed"))
 			err = response.ErrResp(3, ordercode.List, response.ServiceError, s.Message())
 		}
 		return
@@ -108,11 +108,11 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 			case codes.Aborted:
 				err = response.ErrResp(4, ordercode.List, response.InternalError, s.Message())
 			default:
-				l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
+				l.Error(errors.Wrap(err, "product rpc call failed"))
 				err = response.ErrResp(5, ordercode.List, response.ServiceError, s.Message())
 			}
 		} else {
-			l.Logger.Error(errors.Wrap(err, "map reduce process failed"))
+			l.Error(errors.Wrap(err, "map reduce process failed"))
 			err = response.ErrResp(6, ordercode.List, response.ServiceError, s.Message())
 		}
 		return

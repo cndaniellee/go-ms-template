@@ -40,14 +40,14 @@ func (l *RegisterLogic) Register(in *user.AuthReq) (*user.AuthReply, error) {
 	case gorm.ErrRecordNotFound:
 		break
 	default:
-		l.Logger.Error(errors.Wrap(err, "query user failed"))
+		l.Error(errors.Wrap(err, "query user failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 
 	// 创建用户
 	u := &model.User{Username: in.Username, Password: fmt.Sprintf("%x", md5.Sum([]byte(in.Password)))}
 	if err = l.svcCtx.UserModel.Create(l.ctx, u); err != nil {
-		l.Logger.Error(errors.Wrap(err, "create user failed"))
+		l.Error(errors.Wrap(err, "create user failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 

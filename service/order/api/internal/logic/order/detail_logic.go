@@ -36,7 +36,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 	// 解析用户ID
 	userId, err := request.ParseUserId(l.ctx)
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "user id parse failed"))
+		l.Error(errors.Wrap(err, "user id parse failed"))
 		err = response.ErrResp(1, ordercode.List, response.InternalError, err.Error())
 		return
 	}
@@ -53,7 +53,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 		case codes.Aborted:
 			err = response.ErrResp(3, ordercode.Detail, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "order rpc call failed"))
+			l.Error(errors.Wrap(err, "order rpc call failed"))
 			err = response.ErrResp(4, ordercode.Detail, response.ServiceError, s.Message())
 		}
 		return
@@ -79,7 +79,7 @@ func (l *DetailLogic) Detail(req *types.IdReq) (resp *types.DetailResp, err erro
 		case codes.Aborted:
 			err = response.ErrResp(5, ordercode.Detail, response.InternalError, s.Message())
 		default:
-			l.Logger.Error(errors.Wrap(err, "product rpc call failed"))
+			l.Error(errors.Wrap(err, "product rpc call failed"))
 			err = response.ErrResp(6, ordercode.Detail, response.ServiceError, s.Message())
 		}
 		return

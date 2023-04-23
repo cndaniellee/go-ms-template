@@ -32,7 +32,7 @@ func (l *ListLogic) List(in *order.ListReq) (*order.ListReply, error) {
 	// 获取订单列表
 	orders, total, err := l.svcCtx.OrderModel.List(l.ctx, in.UserId, enum.OrderStatus(in.Status), int(in.Page), int(in.PageSize))
 	if err != nil {
-		l.Logger.Error(errors.Wrap(err, "query orders failed"))
+		l.Error(errors.Wrap(err, "query orders failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 
