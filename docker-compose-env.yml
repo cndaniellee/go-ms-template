@@ -215,7 +215,7 @@ services:
       - kibana
       - elasticsearch
       
-  #GoStash消费kafka中的数据
+  #GoStash消费kafka中的数据【mkdir -p /bind/conf/gostash】
   gostash:
     image: kevinwan/go-stash:1.0.8
     container_name: goms_gostash

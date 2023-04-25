@@ -113,7 +113,7 @@ func (l *ListLogic) List(req *types.ListReq) (resp *types.ListResp, err error) {
 			}
 		} else {
 			l.Error(errors.Wrap(err, "map reduce process failed"))
-			err = response.ErrResp(6, ordercode.List, response.ServiceError, s.Message())
+			err = response.ErrResp(6, ordercode.List, response.InternalError, s.Message())
 		}
 		return
 	}
