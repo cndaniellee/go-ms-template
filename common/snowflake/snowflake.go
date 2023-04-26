@@ -43,64 +43,20 @@ type SnowFlake struct {
 
 func New(rds *redis.Redis, serviceId int64) (*SnowFlake, error) {
 
-	var workerId int64
-
 	// Redis中以Map存储当前服务下的已使用ID+过期时间
 	hKey := fmt.Sprintf("snowflake:%d", serviceId)
-	all, err := rds.Hgetall(hKey)
+
+	workerId, err := getWorkerId(rds, hKey)
 	if err != nil {
 		return nil, err
-	}
-	if len(all) > 0 {
-		// 获取所有有效的ID
-		occupiedIds := make([]int64, 0, len(all))
-		now := time.Now()
-		for k, v := range all {
-			var parse int64
-			// 解析租约
-			parse, err = strconv.ParseInt(v, 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			// 此ID的租约已到期
-			if time.UnixMilli(parse).Before(now) {
-				if _, err = rds.Hdel(hKey, k); err != nil {
-					return nil, err
-				}
-			} else {
-				// 解析ID
-				parse, err = strconv.ParseInt(k, 10, 64)
-				if err != nil {
-					return nil, err
-				}
-				occupiedIds = append(occupiedIds, parse)
-			}
-		}
-
-		if len(occupiedIds) > 0 {
-			// 将ID排序
-			sort.Sort(Int64Slice(occupiedIds))
-			// 找到可用的ID
-			var occupiedIndex int
-			for {
-				if workerId < occupiedIds[occupiedIndex] {
-					break
-				} else if occupiedIndex < len(occupiedIds) {
-					occupiedIndex++
-				} else {
-					break
-				}
-				workerId++
-			}
-		}
 	}
 
 	s := &SnowFlake{rds: rds, hKey: hKey}
 	s.epoch = int64(1672502400000) //设置起始时间戳：2023-01-01 00:00:00
 	s.serviceId = serviceId
 	s.workerId = workerId
-	s.serviceIdBits = 4  // 支持的最大无服务ID占位数，最大是15
-	s.workerIdBits = 6   // 支持的最大机器ID占位数，最大是63
+	s.serviceIdBits = 5  // 支持的最大服务ID占位数，最大是31
+	s.workerIdBits = 6   // 支持的最大容器ID占位数，最大是63
 	s.timestampBits = 41 // 时间戳占用位数
 	s.maxTimeStamp = -1 ^ (-1 << s.timestampBits)
 
@@ -115,10 +71,10 @@ func New(rds *redis.Redis, serviceId int64) (*SnowFlake, error) {
 		return nil, errors.New(fmt.Sprintf("workerId can't be greater than %d or less than 0", maxWorkerId))
 	}
 
-	s.sequenceBits = 12                                                  // 序列在ID中占的位数（1毫秒中生成的），最大为4095
+	s.sequenceBits = 11                                                  // 序列在ID中占的位数（1毫秒中生成的），最大为2047
 	s.sequenceMask = -1 ^ (-1 << s.sequenceBits)                         // 计算毫秒内，最大的序列号
-	s.workerIdShift = s.sequenceBits                                     // 机器ID向左移12位
-	s.centerIdShift = s.sequenceBits + s.workerIdBits                    // 机房ID向左移18位
+	s.workerIdShift = s.sequenceBits                                     // 机器ID向左移11位
+	s.centerIdShift = s.sequenceBits + s.workerIdBits                    // 机房ID向左移17位
 	s.timestampShift = s.sequenceBits + s.workerIdBits + s.serviceIdBits // 时间截向左移22位
 
 	s.sequence = atomic.NewInt64(-1)
@@ -128,6 +84,60 @@ func New(rds *redis.Redis, serviceId int64) (*SnowFlake, error) {
 	go s.keepAlive()
 
 	return s, nil
+}
+
+func getWorkerId(rds *redis.Redis, hKey string) (int64, error) {
+	all, err := rds.Hgetall(hKey)
+	if err != nil {
+		return 0, err
+	}
+	var workerId int64
+	if len(all) > 0 {
+		// 获取所有有效的ID
+		occupiedIds := make([]int64, 0, len(all))
+		now := time.Now()
+		for k, v := range all {
+			var parse int64
+			// 解析租约
+			parse, err = strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return 0, err
+			}
+			// 此ID的租约已到期
+			if time.UnixMilli(parse).Before(now) {
+				if _, err = rds.Hdel(hKey, k); err != nil {
+					return 0, err
+				}
+			} else {
+				// 解析ID
+				parse, err = strconv.ParseInt(k, 10, 64)
+				if err != nil {
+					return 0, err
+				}
+				occupiedIds = append(occupiedIds, parse)
+			}
+		}
+
+		if len(occupiedIds) > 0 {
+			// 将ID排序
+			sort.Sort(Int64Slice(occupiedIds))
+			// 找到可用的ID
+			var occupiedIndex int
+			for {
+				if workerId < occupiedIds[occupiedIndex] {
+					break
+				} else if workerId == occupiedIds[occupiedIndex] {
+					if occupiedIndex < len(occupiedIds)-1 {
+						occupiedIndex++
+					}
+				} else {
+					break
+				}
+				workerId++
+			}
+		}
+	}
+	return workerId, nil
 }
 
 func (s *SnowFlake) NextId() int64 {
