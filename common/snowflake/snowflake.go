@@ -1,17 +1,23 @@
 package snowflake
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"go.uber.org/atomic"
+	"goms/common/lock"
 	"sort"
 	"strconv"
 	"time"
 )
 
 const (
+	// CacheServiceKey 容器列表Key
+	CacheServiceKey = "snowflake:service:%d"
+	// CacheLockKey 服务加锁Key
+	CacheLockKey = "snowflake:lock:%d"
 	// KeepAlivePeriod 存活更新时间
 	KeepAlivePeriod = time.Second * 10
 	// GracePeriod 检查宽限时间
@@ -41,27 +47,38 @@ type SnowFlake struct {
 	lastTimestamp *atomic.Int64 // 上一次生成ID的时间戳
 }
 
-func New(rds *redis.Redis, serviceId int64) (*SnowFlake, error) {
+func New(rds *redis.Redis, serviceId int64) (sf *SnowFlake, err error) {
+
+	// 加锁
+	ctx := context.Background()
+	rl := lock.NewRedisLock(rds, fmt.Sprintf(CacheLockKey, serviceId), 5)
+	if err = rl.AcquireExCtx(ctx); err != nil {
+		return
+	}
+	// 解锁
+	defer func(rl *lock.Lock, ctx context.Context) {
+		err = rl.ReleaseExCtx(ctx)
+	}(rl, ctx)
 
 	// Redis中以Map存储当前服务下的已使用ID+过期时间
-	hKey := fmt.Sprintf("snowflake:%d", serviceId)
+	hKey := fmt.Sprintf(CacheServiceKey, serviceId)
 
 	workerId, err := getWorkerId(rds, hKey)
 	if err != nil {
 		return nil, err
 	}
 
-	s := &SnowFlake{rds: rds, hKey: hKey}
-	s.epoch = int64(1672502400000) //设置起始时间戳：2023-01-01 00:00:00
-	s.serviceId = serviceId
-	s.workerId = workerId
-	s.serviceIdBits = 5  // 支持的最大服务ID占位数，最大是31
-	s.workerIdBits = 6   // 支持的最大容器ID占位数，最大是63
-	s.timestampBits = 41 // 时间戳占用位数
-	s.maxTimeStamp = -1 ^ (-1 << s.timestampBits)
+	sf = &SnowFlake{rds: rds, hKey: hKey}
+	sf.epoch = int64(1672502400000) //设置起始时间戳：2023-01-01 00:00:00
+	sf.serviceId = serviceId
+	sf.workerId = workerId
+	sf.serviceIdBits = 5  // 支持的最大服务ID占位数，最大是31
+	sf.workerIdBits = 6   // 支持的最大容器ID占位数，最大是63
+	sf.timestampBits = 41 // 时间戳占用位数
+	sf.maxTimeStamp = -1 ^ (-1 << sf.timestampBits)
 
-	maxServiceId := -1 ^ (-1 << s.serviceIdBits)
-	maxWorkerId := -1 ^ (-1 << s.workerIdBits)
+	maxServiceId := -1 ^ (-1 << sf.serviceIdBits)
+	maxWorkerId := -1 ^ (-1 << sf.workerIdBits)
 
 	// 参数校验
 	if int(serviceId) > maxServiceId || serviceId < 0 {
@@ -71,19 +88,19 @@ func New(rds *redis.Redis, serviceId int64) (*SnowFlake, error) {
 		return nil, errors.New(fmt.Sprintf("workerId can't be greater than %d or less than 0", maxWorkerId))
 	}
 
-	s.sequenceBits = 11                                                  // 序列在ID中占的位数（1毫秒中生成的），最大为2047
-	s.sequenceMask = -1 ^ (-1 << s.sequenceBits)                         // 计算毫秒内，最大的序列号
-	s.workerIdShift = s.sequenceBits                                     // 机器ID向左移11位
-	s.centerIdShift = s.sequenceBits + s.workerIdBits                    // 机房ID向左移17位
-	s.timestampShift = s.sequenceBits + s.workerIdBits + s.serviceIdBits // 时间截向左移22位
+	sf.sequenceBits = 11                                                     // 序列在ID中占的位数（1毫秒中生成的），最大为2047
+	sf.sequenceMask = -1 ^ (-1 << sf.sequenceBits)                           // 计算毫秒内，最大的序列号
+	sf.workerIdShift = sf.sequenceBits                                       // 机器ID向左移11位
+	sf.centerIdShift = sf.sequenceBits + sf.workerIdBits                     // 机房ID向左移17位
+	sf.timestampShift = sf.sequenceBits + sf.workerIdBits + sf.serviceIdBits // 时间截向左移22位
 
-	s.sequence = atomic.NewInt64(-1)
-	s.lastTimestamp = atomic.NewInt64(-1) // 上次生成 ID 的时间戳
+	sf.sequence = atomic.NewInt64(-1)
+	sf.lastTimestamp = atomic.NewInt64(-1) // 上次生成 ID 的时间戳
 
 	// 开携程更新存活时间
-	go s.keepAlive()
+	go sf.keepAlive()
 
-	return s, nil
+	return
 }
 
 func getWorkerId(rds *redis.Redis, hKey string) (int64, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/stores/redis"
+	"goms/common/lock"
 	"goms/common/model"
 	"goms/service/order/rpc/model/enum"
 	"google.golang.org/grpc/codes"
@@ -35,17 +35,17 @@ func NewCheckPaymentTimeoutLogic(ctx context.Context, svcCtx *svc.ServiceContext
 func (l *CheckPaymentTimeoutLogic) CheckPaymentTimeout(in *order.IdReq) (*order.Empty, error) {
 
 	// 使用Redis分布式锁，不锁数据库
-	lock := redis.NewRedisLock(l.svcCtx.Redis, fmt.Sprintf(model.IdLockKey, l.svcCtx.OrderModel.Name(), in.Id))
-	if _, err := lock.AcquireCtx(l.ctx); err != nil {
+	rl := lock.NewRedisLock(l.svcCtx.Redis, fmt.Sprintf(model.IdLockKey, l.svcCtx.OrderModel.Name(), in.Id), 5)
+	if err := rl.AcquireExCtx(l.ctx); err != nil {
 		l.Error(errors.Wrap(err, "acquire redis lock failed"))
 		return nil, status.Error(codes.Aborted, err.Error())
 	}
 	// 解锁
-	defer func(lock *redis.RedisLock, ctx context.Context) {
-		if _, err := lock.ReleaseCtx(ctx); err != nil {
+	defer func(rl *lock.Lock, ctx context.Context) {
+		if err := rl.ReleaseExCtx(ctx); err != nil {
 			l.Error(errors.Wrap(err, "release redis lock failed"))
 		}
-	}(lock, l.ctx)
+	}(rl, l.ctx)
 
 	// 查询订单数据
 	o, err := l.svcCtx.OrderModel.FindOne(l.ctx, in.Id)
