@@ -3,7 +3,7 @@ package jwtauth
 import (
 	"context"
 	"fmt"
-	"github.com/CNDanielLee/go-utils"
+	"github.com/cndaniellee/go-utils"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"time"

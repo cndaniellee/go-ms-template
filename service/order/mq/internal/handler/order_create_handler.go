@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/CNDanielLee/go-utils"
+	"github.com/cndaniellee/go-utils"
 	"github.com/dtm-labs/client/dtmgrpc"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
