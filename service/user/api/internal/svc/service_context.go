@@ -1,9 +1,9 @@
 package svc
 
 import (
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
-	"goms/common/validator"
+	"goms/common/middleware"
 	"goms/service/user/api/internal/config"
 	"goms/service/user/rpc/userclient"
 )
@@ -11,15 +11,17 @@ import (
 type ServiceContext struct {
 	Config config.Config
 
+	AuthConvertor rest.Middleware
+
 	UserRpc userclient.User
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
-	httpx.SetValidator(validator.NewV9())
-
 	return &ServiceContext{
 		Config: c,
+
+		AuthConvertor: middleware.NewAuthConvertor().Handle,
 
 		UserRpc: userclient.NewUser(zrpc.MustNewClient(c.UserRpcConf)),
 	}

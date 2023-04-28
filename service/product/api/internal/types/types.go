@@ -11,9 +11,9 @@ type ListItem struct {
 
 type ListReq struct {
 	Search   string `form:"search,optional"`
-	Category int32  `form:"category,optional" validate:"gte=0,lte=2"`
-	Page     int32  `form:"page" validate:"gte=1"`
-	PageSize int32  `form:"pageSize" validate:"gte=5,lte=100"`
+	Category int32  `form:"category,optional,range=[1:2]"`
+	Page     int32  `form:"page,range=[1:]"`
+	PageSize int32  `form:"pageSize,range=[5:100]"`
 }
 
 type ListResp struct {
@@ -36,11 +36,11 @@ type DetailResp struct {
 }
 
 type EditReq struct {
-	ID          int64  `json:"id,optional" validate:"gte=0"`
+	ID          int64  `json:"id,optional,range=[1:]"`
 	Title       string `json:"title"`
-	Category    int32  `json:"category" validate:"gte=1,lte=2"`
-	Stock       int64  `json:"stock,optional" validate:"gte=0"`
-	Price       int64  `json:"price,optional" validate:"gte=0"`
+	Category    int32  `json:"category,range=[1:2]"`
+	Stock       int64  `json:"stock,optional,range=[1:]"`
+	Price       int64  `json:"price,optional,range=[1:]"`
 	Description string `json:"description,optional"`
 }
 

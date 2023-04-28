@@ -1,0 +1,47 @@
+syntax = "v1"
+
+import "entity/auth.api"
+
+info(
+	title: "用户认证"
+	desc: "Auth requests"
+	author: "CNDanielLee"
+	email: "contact@daniellee.cn"
+	version: "1.0.0"
+)
+
+@server(
+	prefix: auth/v1
+	group: auth
+)
+service auth {
+	@doc "注册"
+	@handler register
+	post /register (AuthReq) returns (AuthResp)
+	
+	@doc "登录"
+	@handler login
+	post /login (AuthReq) returns (AuthResp)
+}
+
+@server(
+	prefix: auth/v1
+	group: token
+	jwt: JwtAuth
+)
+service auth {
+	@doc "校验Token"
+	@handler verify
+	get /verify
+}
+
+@server(
+	prefix: auth/v1
+	group: token
+	jwt: JwtRefresh
+)
+service auth {
+	@doc "刷新Token"
+	@handler refresh
+	get /refresh returns (AuthResp)
+}

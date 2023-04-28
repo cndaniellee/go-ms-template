@@ -12,24 +12,26 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/submit",
-				Handler: order.SubmitHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/list",
-				Handler: order.ListHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/detail",
-				Handler: order.DetailHandler(serverCtx),
-			},
-		},
-		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthConvertor},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/submit",
+					Handler: order.SubmitHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/list",
+					Handler: order.ListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/detail",
+					Handler: order.DetailHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/order/v1"),
 	)
 }

@@ -9,17 +9,6 @@ info(
 )
 
 type (
-    AuthReq {
-        Username string `json:"username"`
-        Password string `json:"password"`
-    }
-
-    AuthResp {
-        Token string `json:"token"`
-    }
-)
-
-type (
     CurrentResp {
         Username string `json:"username"`
     }

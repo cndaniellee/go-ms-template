@@ -1,17 +1,18 @@
-package user
+package auth
 
 import (
 	"context"
 	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logx"
-	"goms/common/auth"
-	"goms/common/response"
-	"goms/common/response/errcode/usercode"
-	"goms/service/user/api/internal/svc"
-	"goms/service/user/api/internal/types"
 	"goms/service/user/rpc/userclient"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"goms/service/auth/api/internal/svc"
+	"goms/service/auth/api/internal/types"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"goms/common/response"
+	"goms/common/response/errcode/authcode"
 )
 
 type LoginLogic struct {
@@ -38,24 +39,27 @@ func (l *LoginLogic) Login(req *types.AuthReq) (resp *types.AuthResp, err error)
 	if err != nil {
 		switch s, _ := status.FromError(err); s.Code() {
 		case codes.NotFound:
-			err = response.ErrResp(1, usercode.Login, response.NoneMatching, s.Message())
+			err = response.ErrResp(1, authcode.Login, response.NoneMatching, s.Message())
 		case codes.Aborted:
-			err = response.ErrResp(2, usercode.Login, response.InternalError, s.Message())
+			err = response.ErrResp(2, authcode.Login, response.InternalError, s.Message())
 		default:
 			l.Error(errors.Wrap(err, "user rpc call failed"))
-			err = response.ErrResp(3, usercode.Login, response.ServiceError, s.Message())
+			err = response.ErrResp(3, authcode.Login, response.ServiceError, s.Message())
 		}
 		return
 	}
 	// 生成用户Token
-	token, err := auth.GenerateUserToken(l.svcCtx.Config.JwtAuth, reply.UserId)
+	userToken, refreshToken, err := l.svcCtx.TokenGenerator.ExecuteUser(l.ctx, reply.UserId)
 	if err != nil {
 		l.Error(errors.Wrap(err, "generate token failed"))
-		err = response.ErrResp(4, usercode.Login, response.InternalError, err.Error())
+		err = response.ErrResp(4, authcode.Login, response.InternalError, err.Error())
 		return nil, err
 	}
 
-	resp = &types.AuthResp{Token: token}
+	resp = &types.AuthResp{
+		Token:        userToken,
+		RefreshToken: refreshToken,
+	}
 
 	return
 }

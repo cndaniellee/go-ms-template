@@ -2,8 +2,8 @@
 package types
 
 type ProductsReq struct {
-	ID     int64 `json:"id" validate:"gte=1"`
-	Amount int64 `json:"amount" validate:"gte=1"`
+	ID     int64 `json:"id,range=[1:]"`
+	Amount int64 `json:"amount,range=[1:]"`
 }
 
 type ProductsResp struct {
@@ -21,9 +21,9 @@ type SubmitReq struct {
 }
 
 type ListReq struct {
-	Status   int32 `form:"status,optional" validate:"gte=0,lte=4"`
-	Page     int32 `form:"page" validate:"gte=1"`
-	PageSize int32 `form:"pageSize" validate:"gte=5,lte=100"`
+	Status   int32 `form:"status,optional,range=[1:4]"`
+	Page     int32 `form:"page,range=[1:]"`
+	PageSize int32 `form:"pageSize,range=[5:100]"`
 }
 
 type ListItem struct {
@@ -40,7 +40,7 @@ type ListResp struct {
 }
 
 type IdReq struct {
-	ID int64 `form:"id" validate:"gte=1"`
+	ID int64 `form:"id,range=[1:]"`
 }
 
 type DetailResp struct {

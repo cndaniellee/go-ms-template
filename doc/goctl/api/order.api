@@ -13,7 +13,7 @@ info(
 @server(
 	prefix: order/v1
 	group: order
-	jwt: JwtAuth
+	middleware: AuthConvertor
 )
 service order {
 	@doc "订单提交"

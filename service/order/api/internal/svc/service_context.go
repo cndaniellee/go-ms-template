@@ -2,9 +2,9 @@ package svc
 
 import (
 	"github.com/zeromicro/go-queue/kq"
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
-	"goms/common/validator"
+	"goms/common/middleware"
 	"goms/service/order/api/internal/config"
 	"goms/service/order/rpc/orderclient"
 	"goms/service/product/rpc/productclient"
@@ -12,6 +12,8 @@ import (
 
 type ServiceContext struct {
 	Config config.Config
+
+	AuthConvertor rest.Middleware
 
 	OrderRpc   orderclient.Order
 	ProductRpc productclient.Product
@@ -21,11 +23,10 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
-	// 设置V9校验
-	httpx.SetValidator(validator.NewV9())
-
 	return &ServiceContext{
 		Config: c,
+
+		AuthConvertor: middleware.NewAuthConvertor().Handle,
 
 		OrderRpc:   orderclient.NewOrder(zrpc.MustNewClient(c.OrderRpcConf)),
 		ProductRpc: productclient.NewProduct(zrpc.MustNewClient(c.ProductRpcConf)),

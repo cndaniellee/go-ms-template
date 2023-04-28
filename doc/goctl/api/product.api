@@ -13,7 +13,7 @@ info(
 @server(
 	prefix: product/v1
 	group: product
-	jwt: JwtAuth
+	middleware: AuthConvertor
 )
 service product {
 	@doc "获取产品列表"

@@ -10,7 +10,10 @@ package errcode
 */
 
 const (
-	User int = (iota + 10) * 10000
+	Auth int = (iota + 10) * 10000
+	User
 	Product
 	Order
+
+	Server = 500000
 )

@@ -1,0 +1,43 @@
+Name: auth-api
+Host: 0.0.0.0
+Port: 9800
+
+JwtAuth:
+  AccessSecret: 840f98f283c7e914f98a87c3f30b3f2f
+  AccessExpire: 7200
+
+JwtRefresh:
+  AccessSecret: 241357b973a9d60ee62046b78b733794
+  AccessExpire: 604800
+
+Redis:
+  Host: fxs_redis:6379
+  Type: node
+  Pass: 840f98f283c7e914f98a87c3f30b3f2f
+
+#RPC
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - goms_etcd:2379
+    Key: auth-rpc
+  NonBlock: true
+
+#日志
+Log:
+  ServiceName: auth-api
+  #  Mode: file
+  Level: info
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 7800
+  Path: /metrics
+
+#链路追踪
+Telemetry:
+  Name: auth-api
+  Endpoint: http://goms_jaeger:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

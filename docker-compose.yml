@@ -22,6 +22,26 @@ services:
       - goms_net
 
   #App热加载容器【mkdir -p /bind/data/air】
+  auth-api:
+    image: cosmtrek/air:latest
+    container_name: goms_service_auth_api
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+      GOPATH: /gopath
+    ports:
+      - 7800:7800
+      - 9800:9800
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /bind/data/air:/gopath
+    privileged: true
+    restart: always
+    command: -c service/auth/api/air.toml
+    networks:
+      - goms_net
+
   user-api:
     image: cosmtrek/air:latest
     container_name: goms_service_user_api

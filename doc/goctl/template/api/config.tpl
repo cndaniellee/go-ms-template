@@ -7,6 +7,4 @@ import (
 
 type Config struct {
 	rest.RestConf
-
-	JwtAuth auth.JwtAuthConf
 }

@@ -28,7 +28,16 @@ scrape_configs:
 
     static_configs:
       - targets: ["localhost:9090"]
-  
+
+  #Auth
+  - job_name: 'auth-api'
+    static_configs:
+      - targets: [ 'goms_service_auth_api:7800' ]
+        labels:
+          job: auth-api
+          app: auth-api
+          env: dev
+
   #User
   - job_name: 'user-api'
     static_configs:
