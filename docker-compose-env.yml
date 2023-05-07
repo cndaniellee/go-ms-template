@@ -8,7 +8,7 @@ services:
 
 #基础组件
 
-  #Etcd注册中心【mkdir -p /bind/data/etcd】
+  #Etcd注册中心
   etcd:
     image: bitnami/etcd:latest
     container_name: goms_etcd
@@ -48,7 +48,7 @@ services:
     networks:
       - goms_net
 
-  #Redis缓存【mkdir -p /bind/data/redis】
+  #Redis缓存
   redis:
     image: redis:7.0.9
     container_name: goms_redis
@@ -64,7 +64,7 @@ services:
     networks:
       - goms_net
 
-  #MySQL数据库【mkdir -p /bind/data/mysql /bind/conf/mysql】
+  #MySQL数据库
   mysql:
     image: mysql:8.0.32
     container_name: goms_mysql
@@ -87,7 +87,7 @@ services:
     networks:
       - goms_net
 
-  #ZooKeeper注册中心【mkdir -p /bind/data/zookeeper】
+  #ZooKeeper注册中心
   zookeeper:
     image: bitnami/zookeeper:3.8
     container_name: goms_zookeeper
@@ -104,7 +104,7 @@ services:
     networks:
       - goms_net
 
-  #Kafka消息队列【mkdir -p /bind/data/kafka】
+  #Kafka消息队列
   kafka:
     image: bitnami/kafka:3.4
     container_name: goms_kafka
@@ -129,7 +129,7 @@ services:
 
 #监控组件
 
-  #RedisManager监控Redis【mkdir -p /bind/conf/redismanager】
+  #RedisManager监控Redis
   redismanager:
     image: lukiya/redismanager:latest
     container_name: goms_redismanager
@@ -158,7 +158,7 @@ services:
     depends_on:
       - redis
       
-  #ElasticSearch搜索存储引擎【mkdir -p /bind/conf/elasticsearch/plugins /bind/data/elasticsearch】
+  #ElasticSearch搜索存储引擎
   #中文分词【./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.7/elasticsearch-analysis-ik-7.17.7.zip】
   elasticsearch:
     image: elasticsearch:7.17.7
@@ -193,7 +193,7 @@ services:
     depends_on:
       - elasticsearch
       
-  #FileBeat收集业务数据【mkdir -p /bind/conf/filebeat】【vim /bind/conf/filebeat/filebeat.yml】
+  #FileBeat收集业务数据
   filebeat:
     image: elastic/filebeat:7.17.7
     container_name: goms_filebeat
@@ -215,7 +215,7 @@ services:
       - kibana
       - elasticsearch
       
-  #GoStash消费kafka中的数据【mkdir -p /bind/conf/gostash】
+  #GoStash消费kafka中的数据
   gostash:
     image: kevinwan/go-stash:1.0.8
     container_name: goms_gostash
@@ -246,7 +246,7 @@ services:
     depends_on:
       - elasticsearch
       
-  #Prometheus监控【mkdir -p /bind/data/prometheus】【vim /bind/conf/prometheus/prometheus.yml】
+  #Prometheus监控
   prometheus:
     image: bitnami/prometheus:2.42.0
     container_name: goms_prometheus
@@ -262,7 +262,7 @@ services:
     networks:
       - goms_net
 
-  #Grafana查看Prometheus数据【mkdir -p /bind/data/grafana】
+  #Grafana查看Prometheus数据
   #初始用户名&密码admin
   grafana:
     image: grafana/grafana:9.4.3

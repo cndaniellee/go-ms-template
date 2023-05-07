@@ -5,7 +5,7 @@ version: '3'
 #所有绑定目录放在/bind/conf/*、/bind/data/*、/bind/logs/*内
 
 services:
-  #Nginx网关【mkdir -p /bind/conf/nginx /bind/logs/nginx】
+  #Nginx网关
   nginx:
     image: nginx:1.23.3
     container_name: goms_nginx
@@ -21,7 +21,7 @@ services:
     networks:
       - goms_net
 
-  #App热加载容器【mkdir -p /bind/data/air】
+  #App热加载容器
   auth-api:
     image: cosmtrek/air:latest
     container_name: goms_service_auth_api
